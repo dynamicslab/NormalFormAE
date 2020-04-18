@@ -1,0 +1,70 @@
+using DifferentialEquations, Distributions, PolyChaos
+
+function rhs(x::Array{T,1},t,p) where {T<:Number}
+    return [x[2] + x[1]^2; 0]
+end
+
+function rhs(t,x::Array{T,2}) where {T<:Number}
+    return [x[2,:]' .+ x[1,:]'.^2; zeros(size(x)[2])']
+end
+
+function rhs(x::Array{T,2}) where {T<:Number}
+    return [x[2,:]' .+ x[1,:]'.^2; zeros(size(x)[2])']
+end
+
+function gen(args,rhsfun,n_ics, noise_strength = 0)
+    
+    # simulation
+    function sim(init_val,rhs_,t)
+        prob_ = ODEProblem(rhs_,init_val,(t[1],t[end]))
+        sol = Array(solve(prob_,Tsit5(),saveat=t,dt_max = (t[end]-t[1])/args["tsize"]))
+        return sol
+    end
+    
+    # Spatial modes
+    function spatial_scale(args,z,dz)
+        # z = n_ics x z_dim x t_steps
+        n_modes = args["z_dim"]*args["expansion_order"]
+        x_range = Array(range(-1,1,length=args["spatial_scale"]))
+        op_legendre = PolyChaos.LegendreOrthoPoly(n_modes)
+        modes = zeros(n_modes,args["spatial_scale"])
+        for i=1:n_modes
+            modes[i,:] = PolyChaos.evaluate(i,x_range,op_legendre)
+        end
+        x = zeros(size(z)[1],args["spatial_scale"],size(z)[3])
+        dx = zeros(size(z)[1],args["spatial_scale"],size(z)[3])
+        for i=1:size(z)[1]
+            for k in size(z)[3]
+                for j in size(z)[2]                    
+                    x[i,:,k] .+= modes[j].*z[i,j,k]
+                    dx[i,:,k] .+= modes[j].*dz[i,j,k]
+                    if args["expansion_order"] >= 2
+                        x[i,:,k] .+= modes[j].*z[i,j,k]^2
+                        dx[i,:,k] .+= modes[j].*2.0 .* z[i,j,k].*dz[i,j,k]                        
+                    end
+                    if args["expansion_order"] >= 3
+                        x[i,:,k] .+= modes[j].*z[i,j,k]^3
+                        dx[i,:,k] .+= modes[j].*3.0 .*z[i,j,k]^2 .*dz[i,j,k]
+                    end
+                end
+            end
+        end
+        return x,dx
+    end
+    
+    t = range(args["tspan"][1],args["tspan"][2],length = args["tsize"])
+    x_dim = args["spatial_scale"]
+    dist_ = Normal()
+    mean_ic = args["mean_init"]
+    ics = noise_strength.*rand(dist_,n_ics,args["z_dim"])'.+mean_ic
+    z = zeros(n_ics,args["z_dim"],args["tsize"])
+    dz = zeros(n_ics,args["z_dim"],args["tsize"])
+    for i=1:size(ics,2)
+        ic_ = ics[:,i]
+        z[i,:,:] = sim(ic_,rhsfun,t)
+        dz[i,:,:] = rhsfun(t,z[i,:,:])
+    end
+    x,dx = spatial_scale(args,z,dz)
+    return t,z,dz,x,dx
+end
+
