@@ -2,7 +2,6 @@ import Pkg
 Pkg.activate(".")
 using NormalFormAE
 using Flux, Plots, ArgParse
-using CuArrays
 #CuArrays.allowscalar(false)
 
 #------------Argument Parsing-------------------------
@@ -33,7 +32,7 @@ args = ArgParseSettings()
     default = 100
     "--ADAMarg"
     arg_type = Float64
-    default = 0.001
+    default = 0.01
     "--P_DataFid"
     arg_type = Float32
     default = 1.0f0
@@ -42,26 +41,26 @@ args = ArgParseSettings()
     default = 1.0f0
     "--P_dx"
     arg_type = Float32
-    default = 1.0f0
+    default = 0.001f0
     "--P_dz"
     arg_type = Float32
-    default = 1.0f0
+    default = 0.001f0
     "--AE_widths"
     arg_type = Int64
     nargs = '+'
-    default = [128,64,32,16,2]
+    default = [128,64,32,2]
     "--AE_acts"
     arg_type = String
     nargs = '+'
-    default = ["sigmoid","sigmoid","sigmoid","id"]
+    default = ["tanh","tanh","id"]
     "--Hom_widths"
     arg_type = Int64
     nargs = '+'
-    default = [2,2,2]
+    default = [2,10,10,2]
     "--Hom_acts"
     arg_type = String
     nargs = '+'
-    default = ["sigmoid","id"]
+    default = ["tanh","tanh","id"]
     "--z_dim"
     arg_type = Int64
     default = 2

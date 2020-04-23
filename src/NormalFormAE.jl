@@ -1,6 +1,6 @@
 module NormalFormAE
 
-using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, CuArrays, Random, PolyChaos, Zygote
+using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, Random, PolyChaos, Zygote
 
 # if has_cuda()
 #     @info "CUDA is on"
@@ -28,22 +28,22 @@ function pre_train(args::Dict,rhs)
     t_train,z_train,dz_train,x_train,dx_train = gen(args,rhs,args["training_size"],2)
     t_test,z_test,dz_test,x_test,dx_test = gen(args,rhs,args["test_size"],2,"test")
 
-    NN["encoder"] = encoder 
-    NN["decoder"] = decoder 
-    NN["hom_decoder"] = hom_decoder 
-    NN["hom_encoder"] = hom_encoder 
+    NN["encoder"] = encoder |> gpu
+    NN["decoder"] = decoder |> gpu
+    NN["hom_decoder"] = hom_decoder |> gpu 
+    NN["hom_encoder"] = hom_encoder |> gpu
     
-    training_data["t"] = t_train 
-    training_data["z"] = z_train 
-    training_data["dz"] = dz_train 
-    training_data["x"] = x_train 
-    training_data["dx"] = dx_train
+    training_data["t"] = t_train |> gpu
+    training_data["z"] = z_train |> gpu
+    training_data["dz"] = dz_train |>gpu
+    training_data["x"] = x_train |> gpu
+    training_data["dx"] = dx_train |> gpu
     
-    test_data["t"] = t_test 
-    test_data["z"] = z_test 
-    test_data["dz"] = dz_test 
-    test_data["x"] = x_test 
-    test_data["dx"] = dx_test
+    test_data["t"] = t_test |> gpu
+    test_data["z"] = z_test |> gpu
+    test_data["dz"] = dz_test |> gpu
+    test_data["x"] = x_test |> gpu
+    test_data["dx"] = dx_test |> gpu
 
     return NN, training_data, test_data
 end
