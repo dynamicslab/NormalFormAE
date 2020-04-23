@@ -141,7 +141,7 @@ function build_loss(args,normalform_,encoder, decoder, hom_encoder, hom_decoder)
         args["loss_Hom"] = loss_hom
         args["loss_dxdt"] = loss_dx
         args["loss_dzdt"] = loss_dz
-        loss_total = loss_datafid# + loss_hom + loss_dz + loss_dx
+        loss_total = loss_datafid + loss_hom + loss_dz + loss_dx
         args["loss_total"] = loss_total
         return loss_total
     end
