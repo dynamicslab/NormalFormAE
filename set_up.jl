@@ -26,10 +26,10 @@ args = ArgParseSettings()
     default = 20
     "--nBatches"
     arg_type = Int64
-    default = 5
+    default = 100
     "--nIterations"
     arg_type = Int64
-    default = 100
+    default = 10
     "--ADAMarg"
     arg_type = Float64
     default = 0.01
@@ -48,11 +48,11 @@ args = ArgParseSettings()
     "--AE_widths"
     arg_type = Int64
     nargs = '+'
-    default = [128,64,32,2]
+    default = [50,25,12,2]
     "--AE_acts"
     arg_type = String
     nargs = '+'
-    default = ["tanh","tanh","id"]
+    default = ["leakyrelu","leakyrelu","id"]
     "--Hom_widths"
     arg_type = Int64
     nargs = '+'
@@ -60,7 +60,7 @@ args = ArgParseSettings()
     "--Hom_acts"
     arg_type = String
     nargs = '+'
-    default = ["tanh","tanh","id"]
+    default = ["leakyrelu","leakyrelu","id"]
     "--z_dim"
     arg_type = Int64
     default = 2
@@ -69,7 +69,7 @@ args = ArgParseSettings()
     default = 1
     "--spatial_scale"
     arg_type = Int64
-    default = 128
+    default = 50
     "--tspan"
     arg_type = Float64
     nargs = '+'

@@ -28,7 +28,13 @@ function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,rhs)
             println("  Test loss: ",test_loss," AE: ",args["loss_AE"]," Hom: ",args["loss_Hom"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"])
             data_ = [(x_batch,dx_batch)]
             for i=1:args["nIterations"]
-                Flux.train!(loss_,Flux.params(encoder,decoder,hom_encoder,hom_decoder),data_,ADAM(args["ADAMarg"]))
+                #Flux.train!(loss_,Flux.params(encoder,decoder,hom_encoder,hom_decoder),data_,ADAM(args["ADAMarg"]))
+                ps = Flux.params(encoder,decoder,hom_encoder,hom_decoder)
+                loss, back = Flux.pullback(ps) do
+                    loss_(x_batch,dx_batch)
+                end
+                grad = back(1f0)
+                Flux.Optimise.update!(ADAM(0.001),ps,grad)
                 println("  Train loss: ",args["loss_total"]," AE: ",args["loss_AE"]," Hom: ",args["loss_Hom"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"])
             end
         end
