@@ -20,7 +20,7 @@ end
 
 function act_der(act::String,x,avgder=0)
     if act == "sigmoid"
-        der_ = sigmoid'.(x)
+        der_ = sigmoid.(x) .*(1.0f0 .- sigmoid.(x))
     elseif act == "tanh"
         der_ = tanh'.(x)
     elseif act == "relu"
@@ -120,28 +120,22 @@ end
 #     return dl
 # end
 
-function build_loss(args,normalform_,encoder, decoder, hom_encoder, hom_decoder)
+function build_loss(args,normalform_,encoder, decoder)
     function loss_(in_,dx_)
         enc_ = encoder(in_)
-        hom_ = hom_encoder(enc_)
         dz1 = dt_NN(encoder,in_,dx_,args["AE_acts"])
-        dz_ = dt_NN(hom_encoder,enc_,dz1,args["Hom_acts"])
-        hom_dec_ = hom_decoder(hom_)
-        dec_ = decoder(hom_dec_)
+        dec_ = decoder(enc_)
         #nf_hom = hcat([normalform_(hom_[:,i],0.0f0,0.0f0) for i in 1:size(hom_)[2]]...) |> gpu
-        dx1 = dt_NN(hom_decoder,hom_,normalform_(hom_),reverse(args["Hom_acts"]))
+        dx1 = dt_NN(decoder,enc_,normalform_(enc_),reverse(args["AE_acts"]))
         #dx1 = dt_NN(hom_decoder,hom_,nf_hom,reverse(args["Hom_acts"]))
-        dx_predict = dt_NN(decoder,hom_dec_,dx1,reverse(args["AE_acts"]))
         loss_datafid = args["P_DataFid"]*Flux.mse(in_,dec_)
-        loss_hom = args["P_Hom"]*Flux.mse(enc_,hom_dec_)
-        loss_dx = args["P_dx"]*Flux.mse(dx_,dx_predict)
-        loss_dz = args["P_dz"]*Flux.mse(dz_,normalform_(hom_))
+        loss_dx = args["P_dx"]*Flux.mse(dx_,dx1)
+        loss_dz = args["P_dz"]*Flux.mse(dz1,normalform_(enc_))
         #loss_dz = args["P_dz"]*Flux.mse(dz_,nf_hom)
         args["loss_AE"] = loss_datafid
-        args["loss_Hom"] = loss_hom
         args["loss_dxdt"] = loss_dx
         args["loss_dzdt"] = loss_dz
-        loss_total = loss_datafid + loss_hom + loss_dz + loss_dx
+        loss_total = loss_datafid  + loss_dz + loss_dx
         args["loss_total"] = loss_total
         return loss_total
     end

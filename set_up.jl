@@ -1,5 +1,12 @@
+ENV["JULIA_CUDA_VERBOSE"] = true
+#ENV["CUARRAYS_MEMORY_POOL"] = "split"
+ENV["JULIA_CUDA_MEMORY_POOL"] = "split"
+ENV["JULIA_CUDA_MEMORY_LIMIT"] = 7500_000_000
+#ENV["CUARRAYS_MEMORY_LIMIT"] = 8000_000_000
+
 import Pkg
 Pkg.activate(".")
+using CuArrays
 using NormalFormAE
 using Flux, Plots, ArgParse
 #CuArrays.allowscalar(false)
