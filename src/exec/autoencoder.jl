@@ -20,9 +20,9 @@ end
 
 function act_der(act::String,x,avgder=0)
     if act == "sigmoid"
-        der_ = sigmoid'.(x)
+        der_ = (1.0f0 .- sigmoid.(x)).*sigmoid.(x)
     elseif act == "tanh"
-        der_ = tanh'.(x)
+        der_ = 1-(tanh.(x)).^2
     elseif act == "relu"
         if avgder == 1
             der_ = 0.5f0 .*(sign.(x) .+ 1.0f0)

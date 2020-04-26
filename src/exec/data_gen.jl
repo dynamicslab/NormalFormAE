@@ -6,7 +6,7 @@ function gen(args,rhsfun,n_ics, noise_strength = 0,type_="training" )
     # simulation
     function sim(init_val,rhs_,t)
         prob_ = ODEProblem(rhs_,init_val,(t[1],t[end]))
-        sol = Array(solve(prob_,Tsit5(),saveat=t,dt_max = (t[end]-t[1])/args["tsize"]))
+        sol = Array(solve(prob_,BS3(),saveat=t,dt_max = (t[end]-t[1])/args["tsize"]))
         return sol
     end
     

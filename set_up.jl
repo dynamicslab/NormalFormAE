@@ -1,6 +1,11 @@
+ENV["JULIA_CUDA_VERBOSE"] = true
+ENV["JULIA_CUDA_MEMORY_POOL"] = "split" # Efficient allocation to GPU (Julia garbage collection is inefficient for this code apparently)
+ENV["JULIA_CUDA_MEMORY_LIMIT"] = 7500_000_000
+
 import Pkg
 Pkg.activate(".")
 using NormalFormAE
+using CuArrays
 using Flux, Plots, ArgParse
 #CuArrays.allowscalar(false)
 
@@ -15,9 +20,12 @@ args = ArgParseSettings()
     help = "Choose ODE model"
     arg_type = String
     default = "LP"
+    "--NoiseVar"
+    arg_type = Float64
+    default = 2.0
     "--training_size"
     arg_type = Int64
-    default = 1000
+    default = 5000
     "--test_size"
     arg_type = Int64
     default = 20
@@ -29,7 +37,7 @@ args = ArgParseSettings()
     default = 100
     "--nIterations"
     arg_type = Int64
-    default = 10
+    default = 50
     "--ADAMarg"
     arg_type = Float64
     default = 0.01
@@ -86,6 +94,10 @@ parsed_args = parse_args(args)
 
 if parsed_args["model"] == "LP"
     include("src/models/LP.jl")
+elseif parsed_args["model"] == "Hopf"
+    include("src/models/Hopf.jl")
+elseif parsed_args["model"] == "Lorenz"
+    include("src/models/Lorenz.jl")
 end
 
 println("Module created.")

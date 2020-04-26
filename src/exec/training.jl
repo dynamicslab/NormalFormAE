@@ -35,8 +35,9 @@ function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,rhs)
                 end
                 grad = back(1f0)
                 Flux.Optimise.update!(ADAM(0.001),ps,grad)
-                println("  Train loss: ",args["loss_total"]," AE: ",args["loss_AE"]," Hom: ",args["loss_Hom"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"])
+                #println("  Train loss: ",args["loss_total"]," AE: ",args["loss_AE"]," Hom: ",args["loss_Hom"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"])
             end
+            println("  Train loss: ",args["loss_total"]," AE: ",args["loss_AE"]," Hom: ",args["loss_Hom"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"])
         end
     end
     NN["encoder"] = encoder
