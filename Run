@@ -1,13 +1,40 @@
 #!/bin/bash
-julia -i --depwarn=yes set_up.jl \
-      --ExpName "LReLU" --model "LP" \
-      --AE_widths 50 25 12 2 --AE_acts "relu" "relu" "id" \
-      --Hom_widths 2 10 10 2 --Hom_acts "relu" "relu" "id" \
-      --expansion_order 1 --spatial_scale 50 \
+# julia -i --depwarn=no set_up.jl \
+#       --ExpName "LReLU_Hopf" --model "Hopf" \
+#       --NoiseVar 0.1 \
+#       --AE_widths 50 25 12 3 --AE_acts "leakyrelu" "leakyrelu" "id" \
+#       --Hom_widths 3 10 10 3 --Hom_acts "leakyrelu" "leakyrelu" "id" \
+#       --expansion_order 2 --spatial_scale 50 \
+#       --training_size 10000 --test_size 100 \
+#       --nEpochs 500 --nBatches 100 --nIterations 100 \
+#       --ADAMarg 0.001 \
+#       --P_DataFid 1.0 --P_Hom 1.0 --P_dx 1.0 --P_dz 1.0 \
+#       --tspan 0.0 0.5 --tsize 200 --z_dim 3 --mean_init 0.01 0.01 0.0
+
+# julia -i --depwarn=no set_up.jl \
+#       --ExpName "sigmoid_Lorenz_nolatentev" --model "Lorenz" \
+#       --NoiseVar 1.0 \
+#       --AE_widths 128 64 32 6 --AE_acts "id" "sigmoid" "id" \
+#       --Hom_widths 6 20 20 6 --Hom_acts "id" "sigmoid" "id" \
+#       --expansion_order 1 --spatial_scale 128 \
+#       --training_size 10000 --test_size 100 \
+#       --nEpochs 500 --nBatches 100 --nIterations 10 \
+#       --ADAMarg 0.01 \
+#       --P_DataFid 1.0 --P_Hom 1.0 --P_dx 0.01 --P_dz 0.01 --P_dz2 0.1\
+#       --tspan 0.0 5.0 --tsize 200 --z_dim 6 --mean_init 0.0 0.0 25.0 28.0 2.666 28.0
+
+julia -i --depwarn=no set_up.jl \
+      --ExpName "sigmoid_Lorenz_nolatentev_bigvar" --model "Lorenz" \
+      --Kathleen \
+      --par_dim 3 \
+      --NoiseVar 0.1 \
+      --AE_widths 128 64 32 6 --AE_acts "id" "sigmoid" "id" \
+      --Hom_widths 6 20 20 6 --Hom_acts "id" "sigmoid" "id" \
+      --expansion_order 1 --spatial_scale 128 \
       --training_size 1000 --test_size 20 \
-      --nEpochs 20 --nBatches 100 --nIterations 10 \
-      --ADAMarg 0.001 \
-      --P_DataFid 1.0 --P_Hom 1.0 --P_dx 1.0 --P_dz 1.0 \
-      --tspan 0.0 0.1 --tsize 100 --z_dim 2 --mean_init 0.01 0.0
+      --nEpochs 500 --nBatches 10 --nIterations 10 \
+      --ADAMarg 0.01 \
+      --P_DataFid 1.0 --P_Hom 1.0 --P_dx 0.01 --P_dz 0.01 --P_dz2 0.1\
+      --tspan 0.0 5.0 --tsize 200 --z_dim 6 --mean_init 0.0 0.0 25.0 28.0 2.666 28.0
 
 

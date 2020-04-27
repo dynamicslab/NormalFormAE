@@ -45,7 +45,14 @@ function gen(args,rhsfun,n_ics, noise_strength = 0,type_="training" )
     x_dim = args["spatial_scale"]
     dist_ = Normal()
     mean_ic = args["mean_init"]
-    ics = noise_strength.*rand(dist_,n_ics,args["z_dim"])'.+mean_ic
+    
+    if args["Kathleen"]
+        ics = zeros(args["z_dim"],n_ics)
+        ics[1:args["z_dim"]-args["par_dim"],:] = noise_strength.*rand(dist_,n_ics,args["z_dim"]-args["par_dim"])'.+mean_ic[1:args["z_dim"]-args["par_dim"]]
+        ics[args["z_dim"]-args["par_dim"]+1:end,:] .= mean_ic[args["z_dim"]-args["par_dim"]+1:end]
+    else
+        ics = noise_strength.*rand(dist_,n_ics,args["z_dim"])'.+mean_ic
+    end
     z = zeros(n_ics,args["z_dim"],args["tsize"])
     dz = zeros(n_ics,args["z_dim"],args["tsize"])
     for i=1:size(ics,2)

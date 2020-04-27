@@ -22,7 +22,7 @@ function act_der(act::String,x,avgder=0)
     if act == "sigmoid"
         der_ = sigmoid.(x) .*(1.0f0 .- sigmoid.(x))
     elseif act == "tanh"
-        der_ = tanh'.(x)
+        der_ = 1.0f0 .- (tanh.(x)).^2
     elseif act == "relu"
         if avgder == 1
             der_ = 0.5f0 .*(sign.(x) .+ 1.0f0)
@@ -131,11 +131,13 @@ function build_loss(args,normalform_,encoder, decoder)
         loss_datafid = args["P_DataFid"]*Flux.mse(in_,dec_)
         loss_dx = args["P_dx"]*Flux.mse(dx_,dx1)
         loss_dz = args["P_dz"]*Flux.mse(dz1,normalform_(enc_))
+        #loss_dz2 = args["P_dz2"]*sum(abs,dz1[4:end,:])
         #loss_dz = args["P_dz"]*Flux.mse(dz_,nf_hom)
         args["loss_AE"] = loss_datafid
         args["loss_dxdt"] = loss_dx
         args["loss_dzdt"] = loss_dz
-        loss_total = loss_datafid  + loss_dz + loss_dx
+        #args["loss_dzdt2"] = loss_dz2
+        loss_total = loss_datafid  + loss_dz + loss_dx #+ loss_dz2
         args["loss_total"] = loss_total
         return loss_total
     end

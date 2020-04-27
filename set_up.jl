@@ -1,13 +1,11 @@
 ENV["JULIA_CUDA_VERBOSE"] = true
-#ENV["CUARRAYS_MEMORY_POOL"] = "split"
-ENV["JULIA_CUDA_MEMORY_POOL"] = "split"
+ENV["JULIA_CUDA_MEMORY_POOL"] = "split" # Efficient allocation to GPU (Julia garbage collection is inefficient for this code apparently)
 ENV["JULIA_CUDA_MEMORY_LIMIT"] = 7500_000_000
-#ENV["CUARRAYS_MEMORY_LIMIT"] = 8000_000_000
 
 import Pkg
 Pkg.activate(".")
-using CuArrays
 using NormalFormAE
+using CuArrays
 using Flux, Plots, ArgParse
 #CuArrays.allowscalar(false)
 
@@ -22,9 +20,14 @@ args = ArgParseSettings()
     help = "Choose ODE model"
     arg_type = String
     default = "LP"
+    "--Kathleen"
+    action = :store_true
+    "--NoiseVar"
+    arg_type = Float64
+    default = 2.0
     "--training_size"
     arg_type = Int64
-    default = 1000
+    default = 5000
     "--test_size"
     arg_type = Int64
     default = 20
@@ -36,7 +39,7 @@ args = ArgParseSettings()
     default = 100
     "--nIterations"
     arg_type = Int64
-    default = 10
+    default = 50
     "--ADAMarg"
     arg_type = Float64
     default = 0.01
@@ -52,6 +55,9 @@ args = ArgParseSettings()
     "--P_dz"
     arg_type = Float32
     default = 0.001f0
+    "--P_dz2"
+    arg_type = Float32
+    default = 0.01f0
     "--AE_widths"
     arg_type = Int64
     nargs = '+'
@@ -71,6 +77,9 @@ args = ArgParseSettings()
     "--z_dim"
     arg_type = Int64
     default = 2
+    "--par_dim"
+    arg_type = Int64
+    default = 1
     "--expansion_order"
     arg_type = Int64
     default = 1
@@ -93,6 +102,10 @@ parsed_args = parse_args(args)
 
 if parsed_args["model"] == "LP"
     include("src/models/LP.jl")
+elseif parsed_args["model"] == "Hopf"
+    include("src/models/Hopf.jl")
+elseif parsed_args["model"] == "Lorenz"
+    include("src/models/Lorenz.jl")
 end
 
 println("Module created.")
