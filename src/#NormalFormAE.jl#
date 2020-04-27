@@ -38,6 +38,8 @@ function pre_train(args::Dict,rhs)
     training_data["dz"] = dz_train |>gpu
     training_data["x"] = x_train |> gpu
     training_data["dx"] = dx_train |> gpu
+    training_data["par"] = par_train |> gpu
+    training_data["alpha"]
     
     test_data["t"] = t_test |> gpu
     test_data["z"] = z_test |> gpu

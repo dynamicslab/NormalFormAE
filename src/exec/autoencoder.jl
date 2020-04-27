@@ -60,14 +60,14 @@ function get_autoencoder(args::Dict)
     end
     
     AE_widths = args["AE_widths"]
-    Hom_widths = args["Hom_widths"]
+    Par_widths = args["Par_widths"]
     AE_acts = args["AE_acts"]
-    Hom_acts = args["Hom_acts"]
+    Par_acts = args["Par_acts"]
 
     encoder = get_NN_Flux(AE_widths,AE_acts)
     decoder = get_NN_Flux(reverse(AE_widths),reverse(AE_acts))
-    hom_encoder = get_NN_Flux(Hom_widths,Hom_acts)
-    hom_decoder = get_NN_Flux(reverse(Hom_widths),reverse(Hom_acts))
+    par_encoder = get_NN_Flux(Par_widths,Par_acts)
+    par_decoder = get_NN_Flux(reverse(Par_widths),reverse(Par_acts))
 
     return encoder, decoder, hom_encoder, hom_decoder
 end
@@ -120,24 +120,28 @@ end
 #     return dl
 # end
 
-function build_loss(args,normalform_,encoder, decoder)
-    function loss_(in_,dx_)
+function build_loss(args,normalform_,encoder, decoder, par_encoder,par_decoder)
+    function loss_(in_,dx_,par_)
         enc_ = encoder(in_)
         dz1 = dt_NN(encoder,in_,dx_,args["AE_acts"])
+        enc_par = par_encoder(par_)
+        dec_par = par_decoder(enc_par)
         dec_ = decoder(enc_)
         #nf_hom = hcat([normalform_(hom_[:,i],0.0f0,0.0f0) for i in 1:size(hom_)[2]]...) |> gpu
-        dx1 = dt_NN(decoder,enc_,normalform_(enc_),reverse(args["AE_acts"]))
+        dx1 = dt_NN(decoder,enc_,normalform_(enc_,enc_par),reverse(args["AE_acts"]))
         #dx1 = dt_NN(hom_decoder,hom_,nf_hom,reverse(args["Hom_acts"]))
         loss_datafid = args["P_DataFid"]*Flux.mse(in_,dec_)
         loss_dx = args["P_dx"]*Flux.mse(dx_,dx1)
-        loss_dz = args["P_dz"]*Flux.mse(dz1,normalform_(enc_))
+        loss_dz = args["P_dz"]*Flux.mse(dz1,normalform_(enc_,enc_par))
+        loss_par = args["P_par"]*Flux.mse(dec_par,par_)
         #loss_dz2 = args["P_dz2"]*sum(abs,dz1[4:end,:])
         #loss_dz = args["P_dz"]*Flux.mse(dz_,nf_hom)
         args["loss_AE"] = loss_datafid
         args["loss_dxdt"] = loss_dx
         args["loss_dzdt"] = loss_dz
+        args["loss_par"] - loss_par
         #args["loss_dzdt2"] = loss_dz2
-        loss_total = loss_datafid  + loss_dz + loss_dx #+ loss_dz2
+        loss_total = loss_datafid  + loss_dz + loss_dx + loss_par
         args["loss_total"] = loss_total
         return loss_total
     end
