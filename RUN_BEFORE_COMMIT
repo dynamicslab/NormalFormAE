@@ -1,0 +1,5 @@
+#!/bin/bash
+mkdir Dump/
+find -name '*~' -exec mv {} Dump/ \;
+find -name '*#' -exec mv {} Dump/ \;
+rm -r Dump
