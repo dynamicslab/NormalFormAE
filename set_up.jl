@@ -123,7 +123,7 @@ NN, training_data, test_data = pre_train(parsed_args,rhs)
 
 println("NN constructed, data obtained.")
 
-#train(parsed_args,training_data,test_data, NN, rhs)    
+train(parsed_args,training_data,test_data, NN, rhs)    
     
     
             
