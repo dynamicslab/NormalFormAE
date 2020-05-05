@@ -33,18 +33,22 @@ function pre_train(args::Dict,rhs)
     NN["par_decoder"] = par_decoder |> gpu 
     NN["par_encoder"] = par_encoder |> gpu
     
-    training_data["t"] = t_train |> gpu
-    training_data["z"] = z_train |> gpu
-    training_data["dz"] = dz_train |>gpu
-    training_data["x"] = x_train |> gpu
-    training_data["dx"] = dx_train |> gpu
+    training_data["t"] = t_train
+    training_data["z"] = z_train 
+    training_data["dz"] = dz_train
+    training_data["x"] = x_train
+    training_data["dx"] = dx_train
+    training_data["par"] = par_train
+    training_data["alpha"] = alpha_train
     
     test_data["t"] = t_test |> gpu
     test_data["z"] = z_test |> gpu
     test_data["dz"] = dz_test |> gpu
     test_data["x"] = x_test |> gpu
     test_data["dx"] = dx_test |> gpu
-
+    test_data["par"] = par_test |> gpu
+    test_data["alpha"] = alpha_test |> gpu
+    
     return NN, training_data, test_data
 end
 

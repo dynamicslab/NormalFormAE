@@ -25,6 +25,12 @@ args = ArgParseSettings()
     "--NoiseVar"
     arg_type = Float64
     default = 2.0
+    "--normalize"
+    arg_type = Float32
+    default = 1.0f0
+    "--p_normalize"
+    arg_type = Float32
+    default = 1.0f0
     "--training_size"
     arg_type = Int64
     default = 5000
@@ -55,7 +61,7 @@ args = ArgParseSettings()
     "--P_dz"
     arg_type = Float32
     default = 0.001f0
-    "--P_dz2"
+    "--P_par"
     arg_type = Float32
     default = 0.01f0
     "--AE_widths"
@@ -66,11 +72,11 @@ args = ArgParseSettings()
     arg_type = String
     nargs = '+'
     default = ["leakyrelu","leakyrelu","id"]
-    "--Hom_widths"
+    "--Par_widths"
     arg_type = Int64
     nargs = '+'
     default = [2,10,10,2]
-    "--Hom_acts"
+    "--Par_acts"
     arg_type = String
     nargs = '+'
     default = ["leakyrelu","leakyrelu","id"]
@@ -83,9 +89,12 @@ args = ArgParseSettings()
     "--expansion_order"
     arg_type = Int64
     default = 1
-    "--spatial_scale"
+    "--x_spatial_scale"
     arg_type = Int64
     default = 50
+    "--alpha_spatial_scale"
+    arg_type = Int64
+    default = 5
     "--tspan"
     arg_type = Float64
     nargs = '+'
@@ -114,7 +123,7 @@ NN, training_data, test_data = pre_train(parsed_args,rhs)
 
 println("NN constructed, data obtained.")
 
-train(parsed_args,training_data,test_data, NN, rhs)    
+#train(parsed_args,training_data,test_data, NN, rhs)    
     
     
             
