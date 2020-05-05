@@ -1,25 +1,21 @@
-function rhs(dx,x,t,p)
-    dx[1] = x[4]*(x[2]-x[1])
-    dx[2] = x[1]*(x[5]-x[3])-x[2]
-    dx[3] = x[1]*x[2]-x[6]*x[3]
-    dx[4] = 0.0
-    dx[5] = 0.0
-    dx[6] = 0.0
-    return dx
+function rhs(dx,x,p,t)
+    dx[1] = p[1]*(x[2]-x[1])
+    dx[2] = x[1]*(p[2]-x[3])-x[2]
+    dx[3] = x[1]*x[2]-p[3]*x[3]
 end
 
-function rhs_lorenz(x,t)
-    dx = zeros(6,1)
-    dx .= rhs(dx,x,t,0)
+function rhs_lorenz(x,t,p)
+    dx = zeros(3,1)
+    rhs(dx,x,p,t)
     return dx
 end
 
 
-function rhs(t,x::Array{T,2}) where {T<:Number}
-    return hcat([rhs_lorenz(x[:,i],t[i]) for i in 1:size(x)[2]]...)
+function rhs(t,x::Array{T,2},p) where {T<:Number}
+    return hcat([rhs_lorenz(x[:,i],t[i],p) for i in 1:size(x)[2]]...)
     #return [x[3,:]'.*x[1,:]'.-x[2,:]'.+x[1,:]'.*(x[1,:]'.^2 .+x[2,:]'.^2); x[1,:]'.+x[3,:]'.*x[2,:]'.+x[2,:]'.*(x[1,:]'.^2 .+ x[2,:]'.^2); zeros(size(x)[2])']
 end
 
-function rhs(x)
-    return [x[4,:]'.*(x[2,:]'.-x[1,:]');x[1,:]'.*(x[5,:]'.-x[3,:]').-x[2,:]';x[1,:]'.*x[2,:]'.-x[6,:]'.*x[3,:]';0.0f0 .* x[1,:]';0.0f0 .* x[1,:]';0.0f0 .* x[1,:]']
+function rhs(x,p)
+    return (1/parsed_args["normalize"]).*[(parsed_args["p_normalize"].*p[1,:]').*((parsed_args["normalize"].*x[2,:]').-(parsed_args["normalize"].*x[1,:]'));(parsed_args["normalize"].*x[1,:]').*((parsed_args["p_normalize"].*p[2,:]').-(parsed_args["normalize"].*x[3,:]')).-(parsed_args["normalize"].*x[2,:]');(parsed_args["normalize"].*x[1,:]').*(parsed_args["normalize"].*x[2,:]').-(parsed_args["p_normalize"].*p[3,:]').*(parsed_args["normalize"].*x[3,:]')]
 end
