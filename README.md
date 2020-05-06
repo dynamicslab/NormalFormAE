@@ -23,6 +23,8 @@ which will automatically install the necessary `Julia` packages you need.
 chmod +x ./Run
 ./Run
 ```
-
+## Note on branches
+- branch `master` implements the new architecture (identfying a parameterized system).
+- branch `Kathleen` implements the [(Champion et al, 2019)](https://www.pnas.org/content/116/45/22445.abstract) model by swicthing SINDy for an explicit RHS.
 
 Feel free to change the `Run` file to your benefit and let me know of anything interesting! :)
