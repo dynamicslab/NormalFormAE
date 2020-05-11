@@ -44,7 +44,7 @@ function gen(args,rhsfun,n_ics, noise_strength = 0,type_="training" )
     
     t = range(args["tspan"][1],args["tspan"][2],length = args["tsize"])
     x_dim = args["x_spatial_scale"]
-    dist_ = Uniform(-1.0,1.0)
+    dist_ = Uniform(0.0,1.0)
     mean_ic = args["mean_init"]
     ics = noise_strength.*rand(dist_,n_ics,args["z_dim"]+args["par_dim"])'.+mean_ic
     z = zeros(n_ics,args["z_dim"],args["tsize"])

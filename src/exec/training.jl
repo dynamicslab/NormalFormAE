@@ -41,6 +41,9 @@ function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,rhs)
     end
     plot_ = gen_plot()
     for i=1:args["nEpochs"]
+        x_batch = 0
+        dx_batch = 0
+        alpha_batch = 0
         println("Epoch ",i)
         for j=1:args["nBatches"]
             println("L_Batch ",j)
@@ -80,6 +83,18 @@ function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,rhs)
             display(plot(plot_...))
             ctr = ctr+1
         end
+        # Refinement
+        # for i=1:args["nIterations"]
+        #     #Flux.train!(loss_,Flux.params(encoder,decoder,hom_encoder,hom_decoder),data_,ADAM(args["ADAMarg"]))
+        #     ps = Flux.params(lin_trans)
+        #     loss, back = Flux.pullback(ps) do
+        #         loss_(x_batch,dx_batch,alpha_batch)
+        #     end
+        #     grad = back(1f0)
+        #     Flux.Optimise.update!(ADAM(args["ADAMarg"]),ps,grad)
+        # end
+        
+        
     end
 end
 

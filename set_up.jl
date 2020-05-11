@@ -1,6 +1,14 @@
 ENV["JULIA_CUDA_VERBOSE"] = true
 ENV["JULIA_CUDA_MEMORY_POOL"] = "split" # Efficient allocation to GPU (Julia garbage collection is inefficient for this code apparently)
-ENV["JULIA_CUDA_MEMORY_LIMIT"] = 7500_000_000
+ENV["JULIA_CUDA_MEMORY_LIMIT"] = 8000_000_000
+
+#   _   _                            _   _____                         _    _____ 
+#  | \ | | ___  _ __ _ __ ___   __ _| | |  ___|__  _ __ _ __ ___      / \  | ____|
+#  |  \| |/ _ \| '__| '_ ` _ \ / _` | | | |_ / _ \| '__| '_ ` _ \    / _ \ |  _|  
+#  | |\  | (_) | |  | | | | | | (_| | | |  _| (_) | |  | | | | | |  / ___ \| |___ 
+#  |_| \_|\___/|_|  |_| |_| |_|\__,_|_| |_|  \___/|_|  |_| |_| |_| /_/   \_\_____|
+#                                                                                 
+#  
 
 import Pkg
 Pkg.activate(".")
@@ -115,15 +123,16 @@ elseif parsed_args["model"] == "Hopf"
     include("src/models/Hopf.jl")
 elseif parsed_args["model"] == "Lorenz"
     include("src/models/Lorenz.jl")
+elseif parsed_args["model"] == "FhN"
+    include("src/models/FhN.jl")
 end
-
 println("Module created.")
 
 NN, training_data, test_data = pre_train(parsed_args,rhs)
 
 println("NN constructed, data obtained.")
 
-train(parsed_args,training_data,test_data, NN, rhs)    
+#train(parsed_args,training_data,test_data, NN, rhs)    
     
     
             
