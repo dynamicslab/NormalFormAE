@@ -25,8 +25,8 @@ function pre_train(args::Dict,rhs)
     NN = Dict()
     
     encoder, decoder, par_encoder, par_decoder = get_autoencoder(args) 
-    t_train,z_train,dz_train,x_train,dx_train,par_train,alpha_train = gen(args,rhs,args["training_size"],2)
-    t_test,z_test,dz_test,x_test,dx_test,par_test,alpha_test = gen(args,rhs,args["test_size"],2,"test")
+    t_train,z_train,dz_train,x_train,dx_train,par_train,alpha_train = gen(args,rhs,args["training_size"])
+    t_test,z_test,dz_test,x_test,dx_test,par_test,alpha_test = gen(args,rhs,args["test_size"],"test")
 
     NN["encoder"] = encoder |> gpu
     NN["decoder"] = decoder |> gpu

@@ -1,8 +1,15 @@
+# function rhs(dx,x,p,t)
+#     dx[1] = p[1]*(x[2]-x[1])
+#     dx[2] = x[1]*(p[2]-x[3])-x[2]
+#     dx[3] = x[1]*x[2]-p[3]*x[3]
+# end
+
 function rhs(dx,x,p,t)
     dx[1] = p[1]*(x[2]-x[1])
     dx[2] = x[1]*(p[2]-x[3])-x[2]
-    dx[3] = x[1]*x[2]-p[3]*x[3]
+    dx[3] = x[1]*x[2]-2.666f0*x[3]
 end
+
 
 function rhs_lorenz(x,t,p)
     dx = zeros(3,1)
@@ -16,6 +23,10 @@ function rhs(t,x::Array{T,2},p) where {T<:Number}
     #return [x[3,:]'.*x[1,:]'.-x[2,:]'.+x[1,:]'.*(x[1,:]'.^2 .+x[2,:]'.^2); x[1,:]'.+x[3,:]'.*x[2,:]'.+x[2,:]'.*(x[1,:]'.^2 .+ x[2,:]'.^2); zeros(size(x)[2])']
 end
 
+# function rhs(x,p)
+#     return (1/args["normalize"]).*[(args["p_normalize"].*p[1,:]').*((args["normalize"].*x[2,:]').-(args["normalize"].*x[1,:]'));(args["normalize"].*x[1,:]').*((args["p_normalize"].*p[2,:]').-(args["normalize"].*x[3,:]')).-(args["normalize"].*x[2,:]');(args["normalize"].*x[1,:]').*(args["normalize"].*x[2,:]').-(args["p_normalize"].*p[3,:]').*(args["normalize"].*x[3,:]')]
+# end
+
 function rhs(x,p)
-    return (1/parsed_args["normalize"]).*[(parsed_args["p_normalize"].*p[1,:]').*((parsed_args["normalize"].*x[2,:]').-(parsed_args["normalize"].*x[1,:]'));(parsed_args["normalize"].*x[1,:]').*((parsed_args["p_normalize"].*p[2,:]').-(parsed_args["normalize"].*x[3,:]')).-(parsed_args["normalize"].*x[2,:]');(parsed_args["normalize"].*x[1,:]').*(parsed_args["normalize"].*x[2,:]').-(parsed_args["p_normalize"].*p[3,:]').*(parsed_args["normalize"].*x[3,:]')]
+    return (1/args["normalize"]).*[(args["p_normalize"].*p[1,:]').*((args["normalize"].*x[2,:]').-(args["normalize"].*x[1,:]'));(args["normalize"].*x[1,:]').*((args["p_normalize"].*p[2,:]').-(args["normalize"].*x[3,:]')).-(args["normalize"].*x[2,:]');(args["normalize"].*x[1,:]').*(args["normalize"].*x[2,:]').-(2.666f0).*(args["normalize"].*x[3,:]')]
 end

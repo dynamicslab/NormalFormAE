@@ -1,4 +1,4 @@
-function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,rhs)
+function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,trained_NN::Tuple,rhs)
     x_train = train_data["x"]
     dx_train = train_data["dx"]
     alpha_train = train_data["alpha"]
@@ -71,7 +71,7 @@ function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,rhs)
             data_ = [(x_batch,dx_batch,alpha_batch)]
             for i=1:args["nIterations"]
                 #Flux.train!(loss_,Flux.params(encoder,decoder,hom_encoder,hom_decoder),data_,ADAM(args["ADAMarg"]))
-                ps = Flux.params(encoder,decoder,par_encoder,par_decoder)
+                ps = Flux.params(trained_NN...)
                 loss, back = Flux.pullback(ps) do
                     loss_(x_batch,dx_batch,alpha_batch)
                 end
