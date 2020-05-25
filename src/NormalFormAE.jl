@@ -1,6 +1,6 @@
 module NormalFormAE
 
-using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, Random, PolyChaos, Zygote
+using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, Random, PolyChaos, Zygote, DiffEqFlux
 
 # if has_cuda()
 #     @info "CUDA is on"

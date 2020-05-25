@@ -1,4 +1,3 @@
-using Flux
 
 function get_activation(x::String)
     if x == "relu"
