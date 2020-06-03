@@ -99,47 +99,35 @@ function dt_NN(NN, input_, left_dt, acts)
     return dl
 end
 
-    
-#         l = W_*act_fun.(l) .+ b_
-#         if act == "elu"
-#             dl = W_*(min.(exp.(l)).*dl)
-#             l = W_*elu.(l) .+ b_
-#         elseif act == "relu"
-#             dl = W_*(Flux.TrackedArray(Float32.(l.>0)).*dl)
-#             l = W_*relu.(l) .+ b_
-#         elseif act == "sigmoid"
-#             dl = W_*((1.0f0 .- sigmoid.(l)).*sigmoid.(l).*dl)
-#             l = W_*sigmoid.(l) .+ b_
-#         elseif act == "id"
-#             dl = W_*dl
-#             l = W_*l .+ b_
-#         end
-#         act = acts[i]
-#     end
-#     return dl
-# end
-
-function build_loss(args,normalform_,encoder, decoder, par_encoder,par_decoder)
+function build_loss(args,normalform_,normalform_scaled,encoder, decoder, par_encoder,par_decoder)
+    t = range(args["tspan"][1],args["tspan"][2],length = args["tsize"])
     function loss_(in_,dx_,par_)
         enc_ = encoder(in_)
         dz1 = dt_NN(encoder,in_,dx_,args["AE_acts"])
         enc_par = par_encoder(par_)
         dec_par = par_decoder(enc_par)
         dec_ = decoder(enc_)
-        #nf_hom = hcat([normalform_(hom_[:,i],0.0f0,0.0f0) for i in 1:size(hom_)[2]]...) |> gpu
-        dx1 = dt_NN(decoder,enc_,normalform_(enc_,enc_par),[reverse(args["AE_acts"])[2:end];"id"])
-        #dx1 = dt_NN(hom_decoder,hom_,nf_hom,reverse(args["Hom_acts"]))
+        z_prime = Zygote.Buffer(enc_,size(enc_)[1],size(enc_)[2])
+        for i in 1:args["batchsize"]
+            init_state = enc_[:,(i-1)*args["tsize"]+1] |> gpu
+            init_par = enc_par[:,(i-1)*args["tsize"]+1] |> gpu
+            prob_ = ODEProblem(normalform_scaled,init_state,Float32.((args["tspan"][1],args["tspan"][2])),init_par)
+            z_prime[:,(i-1)*args["tsize"]+1:i*args["tsize"]] = Array(concrete_solve(prob_,Tsit5(),init_state,saveat=t,reltol=1e-4)) |> gpu
+        end
+        #println("zprime: ",sum(isnan.(z_prime)))
+        z_prime1 = copy(z_prime)
+        println(Flux.mse(enc_,z_prime1))
+        #println(sum(z_prime1.-enc_))
+        dx1 = dt_NN(decoder,z_prime1,normalform_(z_prime1,enc_par),[reverse(args["AE_acts"])[2:end];"id"])
+        #dx1 = dt_NN(decoder,enc_,normalform_(enc_,enc_par),[reverse(args["AE_acts"])[2:end];"id"])
         loss_datafid = args["P_DataFid"]*Flux.mse(in_,dec_)
         loss_dx = args["P_dx"]*Flux.mse(dx_,dx1)
-        loss_dz = args["P_dz"]*Flux.mse(dz1,normalform_(enc_,enc_par))
+        loss_dz = args["P_dz"]*Flux.mse(enc_,z_prime1)
         loss_par = args["P_par"]*Flux.mse(dec_par,par_)
-        #loss_dz2 = args["P_dz2"]*sum(abs,dz1[4:end,:])
-        #loss_dz = args["P_dz"]*Flux.mse(dz_,nf_hom)
         args["loss_AE"] = loss_datafid
         args["loss_dxdt"] = loss_dx
         args["loss_dzdt"] = loss_dz
         args["loss_par"] = loss_par
-        #args["loss_dzdt2"] = loss_dz2
         loss_total = loss_datafid  + loss_dz + loss_dx + loss_par
         args["loss_total"] = loss_total
         return loss_total

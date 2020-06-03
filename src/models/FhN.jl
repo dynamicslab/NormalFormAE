@@ -16,13 +16,13 @@ function rhs(t,x::Array{T,2},p) where {T<:Number}
 end
 
 function rhs(x,p)
-    x1 = parsed_args["normalize"].*x[1,:]';
-    x2 = parsed_args["normalize"].*x[2,:]';
-    p1 = parsed_args["p_normalize"].*p[1,:]';
-    p2 = parsed_args["p_normalize"].*p[2,:]';
-    p3 = parsed_args["p_normalize"].*p[3,:]';
-    p4 = parsed_args["p_normalize"].*p[4,:]';
-    dx = 1/parsed_args["normalize"].*[p1.*(x1.-((x1.^3.0f0)./3.0f0).+x2);p2.-(p3.*x1).-(p4.*x2)]
+    x1 = args["normalize"].*x[1,:]';
+    x2 = args["normalize"].*x[2,:]';
+    p1 = args["p_normalize"].*p[1,:]';
+    p2 = args["p_normalize"].*p[2,:]';
+    p3 = args["p_normalize"].*p[3,:]';
+    p4 = args["p_normalize"].*p[4,:]';
+    dx = 1/args["normalize"].*[p1.*(x1.-((x1.^3.0f0)./3.0f0).+x2);p2.-(p3.*x1).-(p4.*x2)]
     return dx
 end
 # function rhs(x,p)

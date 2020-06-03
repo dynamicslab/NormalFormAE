@@ -10,13 +10,21 @@ function rhs(dx,x,p,t)
     dx[3] = x[1]*x[2]-2.666f0*x[3]
 end
 
-
 function rhs_lorenz(x,t,p)
-    dx = zeros(3,1)
-    rhs(dx,x,p,t)
+    x1,x2,x3 = x
+    p1,p2 = p
+    dx = [p1*(x2-x1),
+          x1*(p2-x3)-x2,
+          x1*x2-2.666f0*x3] |> gpu
     return dx
 end
 
+function rhs_scaled(dx,x,p,t)
+    # println(typeof(x))
+    # println(typeof(p))
+    # println(typeof(rhs_lorenz(args["normalize"].*x,t,args["p_normalize"].*p) ))
+    dx .= 1.0f0/args["normalize"].*rhs_lorenz(args["normalize"].*x,t,args["p_normalize"].*p) 
+end
 
 function rhs(t,x::Array{T,2},p) where {T<:Number}
     return hcat([rhs_lorenz(x[:,i],t[i],p) for i in 1:size(x)[2]]...)

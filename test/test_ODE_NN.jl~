@@ -1,0 +1,89 @@
+using Pkg
+Pkg.activate(".")
+using DiffEqFlux, DiffEqSensitivity, Flux, OrdinaryDiffEq, Zygote, Test, DifferentialEquations #using Plots
+using Base.Iterators: partition
+
+
+nBatchsize = 250
+nEpochs = 1000
+tspan = 50.0
+tsize = 1000
+nbatches = div(tsize,nBatchsize)
+
+
+function lotka_volterra(du,u,p,t)
+    x, y = u
+    α, β, δ, γ = p
+    du[1] = dx = (α - β*y)x
+    du[2] = dy = (δ*x - γ)y
+end
+
+p = Float32[2.2, 1.0, 2.0, 0.4] 
+u0 = Float32[1.0, 1.0]
+
+t = range(0.0,tspan,length=tsize)
+
+prob = ODEProblem(lotka_volterra,u0,(0.0,tspan),p)
+yy = Array(solve(prob,saveat=t))
+y_original = Array(solve(prob,saveat=t))
+for i in 1:1
+    global yy
+    yy = yy*rand(size(yy)[2],size(yy)[2]) #|> gpu
+end
+
+#data = [(yy[:,i]) for i in partition(1:size(yy)[2],nBatchsize)]
+data = Float32.(yy) |> gpu
+
+NN1 = Chain(Dense(2,2),Dense(2,2,tanh),Dense(2,2,tanh)) |> gpu
+NN2 = Chain(Dense(2,2),Dense(2,2,tanh),Dense(2,2,tanh)) |> gpu
+
+t_batch = Float32.((0.0,tspan/nbatches))
+t_batch1 = range(0.0f0,Float32(tspan/nbatches),length = nBatchsize)
+
+args_ = Dict()
+
+prob2 = ODEProblem(lotka_volterra,u0,(0.0f0,Float32(tspan/nbatches)),p)
+#u0 = hcat([u0 for i in 1:nbatches]...)
+#u0 = gpu(u0)
+
+function predict_rd(x)
+    return Array(solve(prob2,Tsit5(),u0=x,saveat=t_batch1,reltol=1e-4))
+end
+
+function gen_loss(xx)
+    y2 = hcat([predict_rd(NN1(xx[:,(i-1)*nBatchsize+1])) for i in 1:nbatches]...) |> gpu
+    y3 = NN2(y2)
+    args_["loss"] = Flux.mse(xx,y3)
+    return Flux.mse(xx,y3)
+end
+
+# function predict_rd(x)
+#     println(size(x))
+#     y1 = NN1(x)
+#     #prob_ = ODEProblem(lotka_volterra,u0,(0.0,50.0),p)
+#     y2 = Array(concrete_solve(prob2,Tsit5(),saveat=t_batch1,reltol=1e-4)) |> gpu
+#     println(size(y2))
+#     y3 = NN2(y2)
+#     loss = Flux.mse(y3,x) + Flux.mse(y1,y2)
+#     args["loss"] = loss
+#     return loss
+# end
+# loss_rd() = sum(abs2,x-1 for x in predict_rd())
+
+opt = ADAM(0.1)
+
+gen_loss(data)
+
+dat_ = [(data)] |> gpu
+
+train_steps = 0
+for ep in 1:nEpochs
+    global args_
+    @info "Epoch $ep"
+    Flux.train!(gen_loss, Flux.params(NN1,NN2), [(data)], opt)
+    loss_ = args_["loss"]
+    println("loss: $(loss_)")
+end
+
+# Display the ODE with the current parameter values.
+# Flux.train!(predict_rd, Flux.params(u0,NN1,NN2), Iterators.repeated((), 100), opt, cb = cb)

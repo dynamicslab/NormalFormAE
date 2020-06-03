@@ -1,4 +1,4 @@
-function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,trained_NN::Tuple,rhs)
+function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,trained_NN::Tuple,rhs,rhs_scaled)
     x_train = train_data["x"]
     dx_train = train_data["dx"]
     alpha_train = train_data["alpha"]
@@ -64,11 +64,13 @@ function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,trained_NN
             for val in ind_[2:end]
                 alpha_batch = [alpha_batch alpha_train[val,:,:]] |> gpu
             end
-            loss_ = build_loss(args,rhs,encoder,decoder,par_encoder,par_decoder)
+            loss_ = build_loss(args,rhs,rhs_scaled,encoder,decoder,par_encoder,par_decoder)
             loss = 0.0f0
+            args["batchsize"] = 20
             test_loss=loss_(x_test,dx_test,alpha_test)
             println("  Test loss: ",test_loss," AE: ",args["loss_AE"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"], " par: ",args["loss_par"])
             data_ = [(x_batch,dx_batch,alpha_batch)]
+            args["batchsize"] = div(args["training_size"],args["nBatches"])
             for i=1:args["nIterations"]
                 #Flux.train!(loss_,Flux.params(encoder,decoder,hom_encoder,hom_decoder),data_,ADAM(args["ADAMarg"]))
                 ps = Flux.params(trained_NN...)
@@ -76,7 +78,7 @@ function train(args::Dict,train_data::Dict, test_data::Dict, NN::Dict,trained_NN
                     loss_(x_batch,dx_batch,alpha_batch)
                 end
                 grad = back(1f0)
-                Flux.Optimise.update!(ADAM(args["ADAMarg"]),ps,grad)
+                Flux.Optimise.update!(Flux.Optimiser(ADAM(args["ADAMarg"]),WeightDecay(0.01)),ps,grad)
             end
             println("  Train loss: ",args["loss_total"]," AE: ",args["loss_AE"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"], " par: ",args["loss_par"])
             plotter(plot_,test_loss,loss,ctr)

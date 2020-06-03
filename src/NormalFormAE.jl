@@ -2,11 +2,6 @@ module NormalFormAE
 
 using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, Random, PolyChaos, Zygote, DiffEqFlux
 
-# if has_cuda()
-#     @info "CUDA is on"
-#     import CuArrays
-#     CuArrays.allowscalar(false)
-# end
 
 include("exec/autoencoder.jl")
 include("exec/training.jl")
