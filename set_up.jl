@@ -30,7 +30,10 @@ args = ArgParseSettings()
     default = "LP"
     "--Kathleen"
     action = :store_true
-    "--NoiseVar"
+    "--StateVar"
+    arg_type = Float64
+    default = 2.0
+    "--ParVar"
     arg_type = Float64
     default = 2.0
     "--normalize"

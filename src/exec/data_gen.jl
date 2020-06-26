@@ -1,12 +1,12 @@
 using DifferentialEquations, Distributions, PolyChaos
 
 
-function gen(args,rhsfun,n_ics, noise_strength = 0,type_="training" )
+function gen(args,rhsfun,n_ics,type_="training" )
     
     # simulation
     function sim(init_val,rhs_,t,p_)
         prob_ = ODEProblem(rhs_,init_val,(t[1],t[end]),p_)
-        sol = Array(solve(prob_,Tsit5(),saveat=t,dt_max = (t[end]-t[1])/args["tsize"]))
+        sol = Array(solve(prob_,BS3(),saveat=t,dt_max = (t[end]-t[1])/args["tsize"]))
         return sol
     end
     
@@ -15,7 +15,7 @@ function gen(args,rhsfun,n_ics, noise_strength = 0,type_="training" )
         # z = n_ics x z_dim x t_steps
         z_dim = size(z)[2]
         n_modes = z_dim*args["expansion_order"]
-        x_range = Array(range(-1,1,length=spatial_scale))
+        x_range = Array(range(-0.5,1,length=spatial_scale))
         op_legendre = PolyChaos.LegendreOrthoPoly(n_modes)
         modes = zeros(n_modes,spatial_scale)
         for i=1:n_modes
@@ -44,9 +44,13 @@ function gen(args,rhsfun,n_ics, noise_strength = 0,type_="training" )
     
     t = range(args["tspan"][1],args["tspan"][2],length = args["tsize"])
     x_dim = args["x_spatial_scale"]
-    dist_ = Uniform(0.0,1.0)
+    dist_ = Uniform(-1.0,1.0)
     mean_ic = args["mean_init"]
-    ics = noise_strength.*rand(dist_,n_ics,args["z_dim"]+args["par_dim"])'.+mean_ic
+    ic_z = mean_ic[1:args["z_dim"]]
+    ic_par = mean_ic[args["z_dim"]+1:end]
+    ics_z = ic_z .+ args["StateVar"].*rand(dist_,n_ics,args["z_dim"])'
+    ics_par = ic_par .+ args["ParVar"].*(rand(dist_,n_ics,args["par_dim"]))'
+    ics =  [ics_z;ics_par]
     z = zeros(n_ics,args["z_dim"],args["tsize"])
     dz = zeros(n_ics,args["z_dim"],args["tsize"])
     par = zeros(n_ics,args["par_dim"],args["tsize"])
@@ -62,7 +66,8 @@ function gen(args,rhsfun,n_ics, noise_strength = 0,type_="training" )
     dz ./= args["normalize"]
     par ./=args["p_normalize"]
     state_x,state_dx = spatial_scale(args,z,dz,x_dim)
-    alpha,alpha_prime = spatial_scale(args,par,par_temp,args["alpha_spatial_scale"])
+    # alpha,alpha_prime = spatial_scale(args,par,par_temp,args["alpha_spatial_scale"])
+    alpha = par # 
     if type_ == "training"
         return t,z,dz,state_x,state_dx,par,alpha
     else

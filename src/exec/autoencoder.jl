@@ -1,4 +1,3 @@
-using Flux
 
 function get_activation(x::String)
     if x == "relu"
@@ -68,8 +67,9 @@ function get_autoencoder(args::Dict)
     decoder = get_NN_Flux(reverse(AE_widths),[reverse(args["AE_acts"])[2:end];"id"])
     par_encoder = get_NN_Flux(Par_widths,Par_acts)
     par_decoder = get_NN_Flux(reverse(Par_widths),[reverse(args["Par_acts"])[2:end];"id"])
+    u0_train = rand(args["z_dim"])
 
-    return encoder, decoder, par_encoder,par_decoder
+    return encoder, decoder, par_encoder,par_decoder, u0_train
 end
 
 function dt_NN(NN, input_, left_dt, acts)
@@ -100,48 +100,38 @@ function dt_NN(NN, input_, left_dt, acts)
     return dl
 end
 
+function build_loss(args,normalform_,nf_solve,encoder, decoder, par_encoder,par_decoder, u0_train)
+    t_batch = range(0.0f0,Float32(args["tspan"][1]),length = args["tsize"])
+    ode_prob_temp = ODEProblem(nf_solve,u0_train,(0.0f0,Float32(args["tspan"][2])),gpu(rand(args["par_dim"])))
+    solve(ode_prob_temp)
+    ode_prob = x -> remake(ode_prob_temp,p=x)
+    solve(ode_prob(gpu(rand(1))))
+    #ODE solve to be used for training
+    function predict_ODE_solve(x)
+        return Array(solve(ode_prob(x),Tsit5(),saveat=t_batch,reltol=1e-4)) 
+    end
     
-#         l = W_*act_fun.(l) .+ b_
-#         if act == "elu"
-#             dl = W_*(min.(exp.(l)).*dl)
-#             l = W_*elu.(l) .+ b_
-#         elseif act == "relu"
-#             dl = W_*(Flux.TrackedArray(Float32.(l.>0)).*dl)
-#             l = W_*relu.(l) .+ b_
-#         elseif act == "sigmoid"
-#             dl = W_*((1.0f0 .- sigmoid.(l)).*sigmoid.(l).*dl)
-#             l = W_*sigmoid.(l) .+ b_
-#         elseif act == "id"
-#             dl = W_*dl
-#             l = W_*l .+ b_
-#         end
-#         act = acts[i]
-#     end
-#     return dl
-# end
-
-function build_loss(args,normalform_,encoder, decoder, par_encoder,par_decoder)
     function loss_(in_,dx_,par_)
         enc_ = encoder(in_)
         dz1 = dt_NN(encoder,in_,dx_,args["AE_acts"])
         enc_par = par_encoder(par_)
         dec_par = par_decoder(enc_par)
         dec_ = decoder(enc_)
-        #nf_hom = hcat([normalform_(hom_[:,i],0.0f0,0.0f0) for i in 1:size(hom_)[2]]...) |> gpu
+        #println(size(enc_par))
+        enc_ODE_solve = predict_ODE_solve(enc_par[:,1])
         dx1 = dt_NN(decoder,enc_,normalform_(enc_,enc_par),[reverse(args["AE_acts"])[2:end];"id"])
-        #dx1 = dt_NN(hom_decoder,hom_,nf_hom,reverse(args["Hom_acts"]))
         loss_datafid = args["P_DataFid"]*Flux.mse(in_,dec_)
         loss_dx = args["P_dx"]*Flux.mse(dx_,dx1)
         loss_dz = args["P_dz"]*Flux.mse(dz1,normalform_(enc_,enc_par))
+        loss_cons = args["P_cons"]*Flux.mse(enc_ODE_solve,enc_)
         loss_par = args["P_par"]*Flux.mse(dec_par,par_)
-        #loss_dz2 = args["P_dz2"]*sum(abs,dz1[4:end,:])
-        #loss_dz = args["P_dz"]*Flux.mse(dz_,nf_hom)
+        loss_dec2 = args["P_dec2"]*Flux.mse(in_,decoder(enc_ODE_solve))
         args["loss_AE"] = loss_datafid
         args["loss_dxdt"] = loss_dx
         args["loss_dzdt"] = loss_dz
         args["loss_par"] = loss_par
-        #args["loss_dzdt2"] = loss_dz2
-        loss_total = loss_datafid  + loss_dz + loss_dx + loss_par
+        args["loss_cons"] = loss_cons
+        loss_total = loss_datafid  + loss_dz + loss_dx + loss_par + loss_cons + loss_dec2
         args["loss_total"] = loss_total
         return loss_total
     end
