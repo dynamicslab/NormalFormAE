@@ -66,7 +66,8 @@ function gen(args,rhsfun,n_ics,type_="training" )
     dz ./= args["normalize"]
     par ./=args["p_normalize"]
     state_x,state_dx = spatial_scale(args,z,dz,x_dim)
-    alpha,alpha_prime = spatial_scale(args,par,par_temp,args["alpha_spatial_scale"])
+    # alpha,alpha_prime = spatial_scale(args,par,par_temp,args["alpha_spatial_scale"])
+    alpha = par # 
     if type_ == "training"
         return t,z,dz,state_x,state_dx,par,alpha
     else

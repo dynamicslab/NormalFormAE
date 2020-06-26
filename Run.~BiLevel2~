@@ -1,0 +1,37 @@
+#!/bin/bash
+
+## Goals
+# - Change optimisation to suit a bilevel technique, where first the system is trained for  single choice of parameters 
+
+julia -i --depwarn=no set_up.jl \
+      --ExpName "sigmoid_Lorenz_new" --model "Lorenz" \
+      --par_dim 3 \
+      --z_dim 3 \
+      --StateVar 2.0 --ParVar 0.0 \
+      --AE_widths 128 64 32 3 --AE_acts "sigmoid" "sigmoid" "id" \
+      --Par_widths 10 8 5 3 --Par_acts "sigmoid" "sigmoid" "id" \
+      --expansion_order 1 --x_spatial_scale 128 --alpha_spatial_scale 10 \
+      --training_size 10000 --test_size 20 \
+      --tspan 0.0 5.0 --tsize 200 --mean_init 0.0 0.0 25.0 10.0 28.0 2.666 \
+      --nEpochs 1 --nBatches 100 --nIterations 10 \
+      --ADAMarg 0.001 \
+      --P_DataFid 10.0 --P_dx 0.01 --P_dz 0.01 --P_par 10.0\
+      --normalize 40.0 --p_normalize 20.0 
+
+
+
+# julia -i --depwarn=no set_up.jl \
+#       --ExpName "FhN" --model "FhN" \
+#       --par_dim 4 \
+#       --z_dim 2 \
+#       --StateVar 0.1 --ParVar 0.1 \
+#       --AE_widths 64 32 16 2 --AE_acts "sigmoid" "sigmoid" "id" \
+#       --Par_widths 10 8 5 4 --Par_acts "sigmoid" "sigmoid" "id" \
+#       --expansion_order 1 --x_spatial_scale 64 --alpha_spatial_scale 10 \
+#       --training_size 1000 --test_size 20 \
+#       --nEpochs 1 --nBatches 100 --nIterations 10 \
+#       --ADAMarg 0.0001 \
+#       --P_DataFid 0.0 --P_dx 1.0 --P_dz 0.001 --P_par 1.0\
+#       --normalize 5.0 --p_normalize 5.0 \
+#       --tspan 0.0 10.0 --tsize 200 --mean_init -1.0 1.0 3.0 0.06666667 0.33333 0.06666667
+

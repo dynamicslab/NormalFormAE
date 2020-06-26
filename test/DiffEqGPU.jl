@@ -41,11 +41,6 @@ yy = yy .+ yy*(0.01.*rand(size(yy)[2],size(yy)[2])) # Creates noisy, translated 
 
 data = Float32.(yy) |> gpu
 
-# Define autoencoder networks
-NN_encode = Chain(Dense(2,10),Dense(10,10),Dense(10,2)) |> gpu
-NN_decode = Chain(Dense(2,10),Dense(10,10),Dense(10,2)) |> gpu
-u0_train = rand(statesize*nbatches)
-
 # Define new ODE problem for "batch" evolution
 t_batch = range(0.0f0,Float32(tspan/nbatches),length = nBatchsize)
 prob2 = ODEProblem(lotka_volterra,u0_train,(0.0f0,Float32(tspan/nbatches)),p)
@@ -54,6 +49,14 @@ prob2 = ODEProblem(lotka_volterra,u0_train,(0.0f0,Float32(tspan/nbatches)),p)
 function predict_ODE_solve()
     return Array(solve(prob2,Tsit5(),saveat=t_batch,reltol=1e-4)) 
 end
+
+# Define autoencoder networks
+NN_encode = Chain(Dense(2,10),Dense(10,10),Dense(10,2)) |> gpu
+NN_decode = Chain(Dense(2,10),Dense(10,10),Dense(10,2)) |> gpu
+NN_par = Chain(Dense(2,2),Dense(2,2),x->solve(prob2,Tsit5(),p=x,saveat=t_batch,reltol=1e-4))
+u0_train = rand(statesize*nbatches)
+
+
 
 function loss_func(data_)
     enc_ = NN_encode(data_)
