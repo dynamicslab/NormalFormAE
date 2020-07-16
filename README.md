@@ -18,10 +18,9 @@
  ```
 which will automatically install the necessary `Julia` packages you need.
 
-- The file `Run` contains the pseudocode script to start training. To start training, run
+- Switch to branch `Sensitivity` and run
 ```
-chmod +x ./Run
-./Run
+julia -i julia -i run/run_Hopf.jl
 ```
 ## Note on branches
 - branch `master` implements the new architecture (identfying a parameterized system).
