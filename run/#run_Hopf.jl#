@@ -35,7 +35,7 @@ args["training_size"] = 100
 NN, training_data = pre_train(args,dxdt_rhs,dxdt_sens_rhs)
 
 ## Train sequence 1
-args["nEpochs"] = 1
+args["nEpochs"] = 10
 #args["nBatches"] = 100
 args["nIt_1"] = 3
 args["nIt_2"] = 10

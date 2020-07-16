@@ -1,6 +1,6 @@
 module NormalFormAE
 
-using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, Random, PolyChaos, Zygote, DiffEqFlux
+using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, Random, PolyChaos, Zygote, DiffEqFlux, DiffEqSensitivity, LinearAlgebra
 
 
 include("exec/autoencoder.jl")
@@ -13,39 +13,27 @@ export get_autoencoder, dt_NN, build_loss
 
 export train, pre_train
 
-function pre_train(args::Dict,rhs)
+function pre_train(args::Dict,rhs,sens_rhs)
     training_data = Dict()
     test_data = Dict()
     losses_ = Dict()
     NN = Dict()
     
-    encoder, decoder, par_encoder, par_decoder, u0_train = get_autoencoder(args) 
-    t_train,z_train,dz_train,x_train,dx_train,par_train,alpha_train = gen(args,rhs,args["training_size"])
-    t_test,z_test,dz_test,x_test,dx_test,par_test,alpha_test = gen(args,rhs,args["test_size"],"test")
+    encoder, decoder, par_encoder, par_decoder = get_autoencoder(args) 
+    x_train,dx_train,alpha_train, dxda_train, dtdxda_train = gen(args,rhs,sens_rhs,args["training_size"])
 
     NN["encoder"] = encoder |> gpu
     NN["decoder"] = decoder |> gpu
     NN["par_decoder"] = par_decoder |> gpu 
     NN["par_encoder"] = par_encoder |> gpu
-    NN["u0_train"] = u0_train |> gpu
     
-    training_data["t"] = t_train
-    training_data["z"] = z_train 
-    training_data["dz"] = dz_train
     training_data["x"] = x_train
-    training_data["dx"] = dx_train
-    training_data["par"] = par_train
+    training_data["dxdt"] = dx_train
     training_data["alpha"] = alpha_train
+    training_data["dxda"] = dxda_train
+    training_data["dtdxda"] = dtdxda_train
     
-    test_data["t"] = t_test |> gpu
-    test_data["z"] = z_test |> gpu
-    test_data["dz"] = dz_test |> gpu
-    test_data["x"] = x_test |> gpu
-    test_data["dx"] = dx_test |> gpu
-    test_data["par"] = par_test |> gpu
-    test_data["alpha"] = alpha_test |> gpu
-    
-    return NN, training_data, test_data
+    return NN, training_data
 end
 
 end
