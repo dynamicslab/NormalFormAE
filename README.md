@@ -1,5 +1,5 @@
 # Normal form Autoencoder
- Constructing low-rank parameterized representations of high dimensional dynamics using normal forms as a building block by using an autoencoder framework. Neural network training is implemented with `Flux.jl`, a Julia library.
+ Constructing low-dimensional parameterized representations of high dimensional dynamics using normal forms as a building block by using an autoencoder framework. Neural network training is implemented with `Flux.jl`, a Julia library.
  My notes are available [here](https://www.overleaf.com/read/vwqwrnpjvrtn).
  
  Note you need CUDA to run this package.
