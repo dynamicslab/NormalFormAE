@@ -18,13 +18,12 @@
  ```
 which will automatically install the necessary `Julia` packages you need.
 
-- Switch to branch `Sensitivity` and run
+- Run an example via   
 ```
-julia -i julia -i run/run_Hopf.jl
+julia -i run/run_Hopf.jl
 ```
 ## Note on branches
-- branch `NLRAN` implements the Nonlinear Recurrent Autoencoder scheme
-- branch `Sensitivity` implements the scheme based on sensitivity analysis 
+- `master` contains the standard AE + NLRAN + sensitivity analysis 
 - branch `Kathleen` implements the [(Champion et al, 2019)](https://www.pnas.org/content/116/45/22445.abstract) model execpt for switching SINDy with an explicit RHS of the latent dynamics.
 
 Feel free to change the `Run` file to your benefit and let me know of anything interesting! :)
