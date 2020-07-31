@@ -1,0 +1,566 @@
+	
+	\begin{thebibliography}{10}
+
+\bibitem{Dijkstra2016}
+Dijkstra K, Hofmeijer J, van Gils SA, van Putten MJAM.
+\newblock A Biophysical Model for Cytotoxic Cell Swelling.
+\newblock Journal of Neuroscience. 2016;36(47):11881--11890.
+\newblock doi:{10.1523/jneurosci.1934-16.2016}.
+
+\bibitem{Hille2001}
+Hille B.
+\newblock {Ion Channels of Excitable Membranes}.
+\newblock Oxford University Press; 2001.
+
+\bibitem{Kager2000}
+Kager H, Wadman WJ, Somjen GG.
+\newblock Simulated Seizures and Spreading Depression in a Neuron Model
+Incorporating Interstitial Space and Ion Concentrations.
+\newblock Journal of Neurophysiology. 2000;84(1):495--512.
+
+\bibitem{Luo1994}
+Luo CH, Rudy Y.
+\newblock {A dynamic model of the cardiac ventricular action potential. I.
+	Simulations of ionic currents and concentration changes.}
+\newblock Circulation Research. 1994;74(6):1071--1096.
+\newblock doi:{10.1161/01.RES.74.6.1071}.
+
+\bibitem{Dunham2000}
+Dunham PB.
+\newblock {Oxygen sensing and {K$^+$-Cl$^-$}-cotransport.}
+\newblock The Journal of Physiology. 2000;526(1):1.
+\newblock doi:{10.1111/J.1469-7793.2000.T01-3-00001.X}.
+
+\bibitem{Kahle2015}
+Kahle KT, Khanna AR, Alper SL, Adragna NC, Lauf PK, Sun D, et~al.
+\newblock {K$^+$-Cl$^-$ cotransporters, cell volume homeostasis, and
+	neurological disease.}
+\newblock Trends in Molecular Medicine. 2015;21(8):513--23.
+\newblock doi:{10.1016/j.molmed.2015.05.008}.
+
+\bibitem{Chamma2012}
+Chamma I, Chevy Q, Poncer JC, Levi S.
+\newblock Role of the neuronal {K-Cl co-transporter KCC2} in inhibitory and
+excitatory neurotransmission.
+\newblock Frontiers in Cellular Neuroscience. 2012;6:31--45.
+\newblock doi:{10.3389/fncel.2012.00005}.
+
+\bibitem{Williams1999}
+Williams JR, Sharp JW, Kumari VG, Wilson M, Payne JA.
+\newblock {The neuron-specific K$^+$-Cl$^-$ cotransporter, KCC2. Antibody
+	development and initial characterization of the protein.}
+\newblock Journal of Biological Chemistry. 1999;274(18):12656--64.
+
+\bibitem{Uvarov2005}
+Uvarov P, Pruunsild P, Timmusk T, Airaksinen MS.
+\newblock {Neuronal K$^+$/Cl$^-$ co-transporter (KCC2) transgenes lacking
+	neurone restrictive silencer element recapitulate CNS neurone-specific
+	expression and developmental up-regulation of endogenous KCC2 gene}.
+\newblock Journal of Neurochemistry. 2005;95(4):1144--1155.
+\newblock doi:{10.1111/j.1471-4159.2005.03434.x}.
+
+\bibitem{Ostby2009}
+{\O}stby I, {\O}yehaug L, Einevoll GT, Nagelhus EA, Plahte E, Zeuthen T, et~al.
+\newblock Astrocytic mechanisms explaining neural-activity-induced shrinkage of
+extraneuronal space.
+\newblock {PLoS} Computational Biology. 2009;5(1):e1000272.
+\newblock doi:{10.1371/journal.pcbi.1000272}.
+
+\bibitem{Verkhratsky2018}
+Verkhratsky A, Nedergaard M.
+\newblock Physiology of Astroglia.
+\newblock Physiological Reviews. 2018;98(1):239--389.
+\newblock doi:{10.1152/physrev.00042.2016}.
+
+\bibitem{Olsen2008}
+Olsen ML, Sontheimer H.
+\newblock {Functional implications for Kir4.1 channels in glial biology: from
+	{K$^+$} buffering to cell differentiation}.
+\newblock Journal of Neurochemistry. 2008;107(3):589--601.
+\newblock doi:{10.1111/j.1471-4159.2008.05615.x}.
+
+\bibitem{Olsen2015}
+Olsen ML, Khakh BS, Skatchkov SN, Zhou M, Lee CJ, Rouach N.
+\newblock New Insights on Astrocyte Ion Channels: Critical for Homeostasis and
+Neuron-Glia Signaling.
+\newblock Journal of Neuroscience. 2015;35(41):13827--13835.
+\newblock doi:{10.1523/JNEUROSCI.2603-15.2015}.
+
+\bibitem{Sibille2015}
+Sibille J, {Dao Duc} K, Holcman D, Rouach N.
+\newblock The Neuroglial Potassium Cycle during Neurotransmission: Role of
+{K}ir4.1 Channels.
+\newblock PLoS Computational Biology. 2015;11(3):e1004137.
+\newblock doi:{10.1371/journal.pcbi.1004137}.
+
+\bibitem{Dronne2006}
+Dronne MA, Boissel JP, Grenier E.
+\newblock A mathematical model of ion movements in grey matter during a stroke.
+\newblock Journal of Theoretical Biology. 2006;240(4):599 -- 615.
+\newblock doi:{https://doi.org/10.1016/j.jtbi.2005.10.0238}.
+
+\bibitem{Macvicar2002}
+Macvicar BA, Feighan D, Brown A, Ransom B.
+\newblock Intrinsic optical signals in the rat optic nerve: Role for {K$^+$}
+uptake via {NKCC1} and swelling of astrocytes.
+\newblock GLIA. 2002;37(2):114--123.
+\newblock doi:{10.1002/glia.10023}.
+
+\bibitem{Su2002}
+Su G, Kintner DB, Flagella M, Shull GE, Sun D.
+\newblock {Astrocytes from {Na$^+$-K$^+$-Cl$^-$}-cotransporter-null mice
+	exhibit absence of swelling and decrease in EAA release}.
+\newblock American Journal of Physiology - Cell Physiology.
+2002;282(5):C1147--C1160.
+\newblock doi:{10.1152/ajpcell.00538.2001}.
+
+\bibitem{Annunziato2013}
+Annunziato L, Boscia F, Pignataro G.
+\newblock {Ionic transporter activity in astrocytes, microglia, and
+	oligodendrocytes during brain ischemia.}
+\newblock Journal of Cerebral Blood Flow and Metabolism. 2013;33(7):969--82.
+\newblock doi:{10.1038/jcbfm.2013.44}.
+
+\bibitem{Orlov2015}
+Orlov SN, Koltsova SV, Kapilevich LV, Gusakova SV, Dulin NO.
+\newblock {NKCC1 and NKCC2: The pathogenetic role of cation-chloride
+	cotransporters in hypertension.}
+\newblock Genes {\&} diseases. 2015;2(2):186--196.
+\newblock doi:{10.1016/j.gendis.2015.02.007}.
+
+\bibitem{Danbolt2001}
+Danbolt NC.
+\newblock Glutamate uptake.
+\newblock Progress in Neurobiology. 2001;65(1):1 -- 105.
+\newblock doi:{https://doi.org/10.1016/S0301-0082(00)00067-8}.
+
+\bibitem{Leng2014}
+Leng T, Shi Y, Xiong ZG, Sun D.
+\newblock Proton-sensitive cation channels and ion exchangers in ischemic brain
+injury: New therapeutic targets for stroke?
+\newblock Progress in Neurobiology. 2014;115:189 -- 209.
+\newblock doi:{https://doi.org/10.1016/j.pneurobio.2013.12.008}.
+
+\bibitem{Breslin2018}
+Breslin K, Wade JJ, Wong-Lin K, Harkin J, Flanagan B, Zalinge HV, et~al.
+\newblock Potassium and sodium microdomains in thin astroglial processes: {A}
+computational model study.
+\newblock {PLOS} Computational Biology. 2018;14(5):e1006151.
+\newblock doi:{10.1371/journal.pcbi.1006151}.
+
+\bibitem{Gerkau2017}
+Gerkau NJ, Rakers C, Durry S, Petzold GC, Rose CR.
+\newblock Reverse {NCX} Attenuates Cellular Sodium Loading in Metabolically
+Compromised Cortex.
+\newblock Cerebral Cortex. 2018;28(12):4264–4280.
+\newblock doi:{10.1093/cercor/bhx280}.
+
+\bibitem{Hackett2015}
+Hackett JT, Ueda T.
+\newblock Glutamate Release.
+\newblock Neurochemical Research. 2015;40(12):2443--2460.
+\newblock doi:{10.1007/s11064-015-1622-1}.
+
+\bibitem{Krzyzanowska2014}
+Krzyzanowska W, Pomierny B, Filip M, Pera J.
+\newblock Glutamate transporters in brain ischemia: to modulate or not?
+\newblock Acta Pharmacologica Sinica. 2014;35(4):444 -- 462.
+
+\bibitem{Tsodyks719}
+Tsodyks MV, Markram H.
+\newblock The neural code between neocortical pyramidal neurons depends on
+neurotransmitter release probability.
+\newblock Proceedings of the National Academy of Sciences. 1997;94(2):719--723.
+\newblock doi:{10.1073/pnas.94.2.719}.
+
+\bibitem{WalterVesicle}
+Walter AM, Pinheiro PS, Verhage M, Sørensen JB.
+\newblock A Sequential Vesicle Pool Model with a Single Release Sensor and a
+{Ca$^{2+}$}-Dependent Priming Catalyst Effectively Explains
+{Ca$^{2+}$}-Dependent Properties of Neurosecretion.
+\newblock PLOS Computational Biology. 2013;9(12):e1003362.
+\newblock doi:{10.1371/journal.pcbi.1003362}.
+
+\bibitem{Zeuthen2001}
+Zeuthen T.
+\newblock How water molecules pass through aquaporins.
+\newblock Trends in Biochemical Sciences. 2001;26(2):77 -- 79.
+\newblock doi:{https://doi.org/10.1016/S0968-0004(00)01778-3}.
+
+\bibitem{Zeuthen2010}
+Zeuthen T.
+\newblock Water-Transporting Proteins.
+\newblock Journal of Membrane Biology. 2010;234(2):57--73.
+\newblock doi:{10.1007/s00232-009-9216-y}.
+
+\bibitem{Jones79}
+Jones DG, Cullen AM.
+\newblock A quantitative investigation of some presynaptic terminal parameters
+during synaptogenesis.
+\newblock Experimental Neurology. 1979;64(2):245 -- 259.
+\newblock doi:{https://doi.org/10.1016/0014-4886(79)90266-8}.
+
+\bibitem{Koch1991}
+Koch C, Segev I.
+\newblock Methods in {N}euronal {M}odeling: {F}rom {S}ynapses to {N}etworks.
+\newblock Bradford Books; 1991.
+\newblock Available from:
+\url{https://www.amazon.com/Methods-Neuronal-Modeling-Synapses-Networks/dp/026261071X?SubscriptionId=0JYN1NVW651KCA56C102&tag=techkie-20&linkCode=xm2&camp=2025&creative=165953&creativeASIN=026261071X}.
+
+\bibitem{Oschmann2017}
+Oschmann F, Mergenthaler K, Jungnickel E, Obermayer K.
+\newblock Spatial separation of two different pathways accounting for the
+generation of calcium signals in astrocytes.
+\newblock PLOS Computational Biology. 2017;13(2):e1005377.
+\newblock doi:{10.1371/journal.pcbi.1005377}.
+
+\bibitem{Reyes2012}
+Reyes RC, Verkhratsky A, Parpura V.
+\newblock Plasmalemmal {Na$^+$}/{Ca$^{2+}$} Exchanger Modulates
+{Ca$^{2+}$}-Dependent Exocytotic Release of Glutamate from Rat Cortical
+Astrocytes.
+\newblock ASN Neuro. 2012;4(1):AN20110059.
+\newblock doi:{10.1042/AN20110059}.
+
+\bibitem{Marx2015}
+Marx MC, Billups D, Billups B.
+\newblock Maintaining the presynaptic glutamate supply for excitatory
+neurotransmission.
+\newblock Journal of Neuroscience Research. 2015;93(7):1031--1044.
+\newblock doi:{10.1002/jnr.23561}.
+
+\bibitem{Untiet2016}
+Untiet V, Kovermann P, Gerkau NJ, Gensch T, Rose CR, Fahlke C.
+\newblock Glutamate transporter-associated anion channels adjust intracellular
+chloride concentrations during glial maturation.
+\newblock {GLIA}. 2016;65(2):388--400.
+\newblock doi:{10.1002/glia.23098}.
+
+
+\bibitem{Araque99}
+Araque A, Parpura V, Sanzgiri RP, Haydon PG.
+\newblock Tripartite synapses: glia, the unacknowledged partner.
+\newblock Trends in Neurosciences. 1999;22(5):208 -- 215.
+\newblock doi:{https://doi.org/10.1016/S0166-2236(98)01349-6}.
+
+\bibitem{Verkhratsky2018}
+Verkhratsky A, Nedergaard M.
+\newblock Physiology of Astroglia.
+\newblock Physiological Reviews. 2018;98(1):239--389.
+\newblock doi:{10.1152/physrev.00042.2016}.
+
+\bibitem{Danbolt2001}
+Danbolt NC.
+\newblock Glutamate uptake.
+\newblock Progress in Neurobiology. 2001;65(1):1 -- 105.
+\newblock doi:{https://doi.org/10.1016/S0301-0082(00)00067-8}.
+
+\bibitem{Harris2012}
+Harris JJ, Jolivet R, Attwell D.
+\newblock {Synaptic energy use and supply.}
+\newblock Neuron. 2012;75(5):762--77.
+\newblock doi:{10.1016/j.neuron.2012.08.019}.
+
+\bibitem{Erecinska94}
+Ereci{\'n}ska M, Silver IA.
+\newblock Ions and energy in mammalian brain.
+\newblock Progress in Neurobiology. 1994;43(1):37 -- 71.
+\newblock doi:{10.1016/0301-0082(94)90015-9}.
+
+\bibitem{Dzhala2001}
+Dzhala V, Khalilov I, Ben-Ari Y, Khazipov R.
+\newblock Neuronal mechanisms of the anoxia-induced network oscillations in the
+rat hippocampus {\textit{in vitro}}.
+\newblock Journal of Physiology. 2001;536(2):521--531.
+\newblock doi:{10.1111/j.1469-7793.2001.0521c.xd}.
+
+\bibitem{Hofmeijer2012}
+Hofmeijer J, van Putten MJAM.
+\newblock Ischemic Cerebral Damage.
+\newblock Stroke. 2012;43(2):607--615.
+\newblock doi:{10.1161/STROKEAHA.111.632943}.
+
+\bibitem{Somjen2004}
+Somjen GG.
+\newblock {Ions in the brain : normal function, seizures, and stroke}.
+\newblock Oxford: Oxford University Press; 2004.
+
+\bibitem{Zandt2011}
+Zandt BJ, ten Haken B, van Dijk JG, van Putten MJAM.
+\newblock Neural Dynamics during Anoxia and the “wave of Death”.
+\newblock PLoS ONE. 2011;6(7):e22127.
+\newblock doi:{10.1371/journal.pone.0022127}.
+
+\bibitem{Gerkau2018}
+Gerkau NJ, Rakers C, Durry S, Petzold GC, Rose CR.
+\newblock Reverse {NCX} Attenuates Cellular Sodium Loading in Metabolically
+Compromised Cortex.
+\newblock Cerebral Cortex. 2018;28(12):4264--4280.
+\newblock doi:{10.1093/cercor/bhx280}.
+
+\bibitem{Sun2020}
+Song S, Luo L, Sun B, Sun D.
+\newblock Roles of glial ion transporters in brain diseases.
+\newblock Glia. 2020;68(3):472--494.
+\newblock doi:{10.1002/glia.23699}.
+
+\bibitem{Pignataro2014}
+Pignataro G, Sirabella R, Anzilotti S, Di~Renzo G, Annunziato L.
+\newblock Does {Na$^+$/Ca$^{2+}$} Exchanger, {NCX}, Represent a New Druggable
+Target in Stroke Intervention?
+\newblock Translational Stroke Research. 2014;5(1):145--155.
+\newblock doi:{10.1007/s12975-013-0308-8}.
+
+\bibitem{Dijkstra2016}
+Dijkstra K, Hofmeijer J, van Gils SA, van Putten MJAM.
+\newblock A Biophysical Model for Cytotoxic Cell Swelling.
+\newblock Journal of Neuroscience. 2016;36(47):11881--11890.
+\newblock doi:{10.1523/jneurosci.1934-16.2016}.
+
+\bibitem{Rungta2015}
+Rungta RL, Choi HB, Tyson JR, Malik A, Dissing-Olesen L, Lin PC, et~al.
+\newblock The Cellular Mechanisms of Neuronal Swelling Underlying Cytotoxic
+Edema.
+\newblock Cell. 2015;161(3):610 -- 621.
+\newblock doi:{https://doi.org/10.1016/j.cell.2015.03.029}.
+
+\bibitem{Donnan}
+Donnan FG.
+\newblock Theory of membrane equilibria and membrane potentials in the presence
+of non-dialysing electrolytes. A contribution to physical-chemical
+physiology.
+\newblock Journal of Membrane Science. 1995;100(1):45 -- 55.
+\newblock doi:{https://doi.org/10.1016/0376-7388(94)00297-C}.
+
+\bibitem{Rossi2007}
+Rossi DJ, Brady JD, Mohr C.
+\newblock Astrocyte metabolism and signaling during brain ischemia.
+\newblock Nature Neuroscience. 2007;10(11):1377--1386.
+\newblock doi:{10.1038/nn2004}.
+
+\bibitem{Moskowitz2010}
+Moskowitz MA, Lo EH, Iadecola C.
+\newblock The Science of Stroke: Mechanisms in Search of Treatments.
+\newblock Neuron. 2010;67(2):181 -- 198.
+\newblock doi:{https://doi.org/10.1016/j.neuron.2010.07.002}.
+
+\bibitem{Shou2015}
+Shou W, Bergstrom CT, Chakraborty AK, Skinner FK.
+\newblock {Research: Theory, models and biology}.
+\newblock Elife. 2015;4:e07158.
+\newblock doi:{10.7554/eLife.07158}.
+
+\bibitem{lirinzel}
+Li YX, Rinzel J.
+\newblock Equations for {InsP3} Receptor-mediated {$[\rm Ca^{2+}]_i$}
+Oscillations Derived from a Detailed Kinetic Model: A {H}odgkin-{H}uxley Like
+Formalism.
+\newblock Journal of Theoretical Biology. 1994;166(4):461 -- 473.
+\newblock doi:{https://doi.org/10.1006/jtbi.1994.1041}.
+
+\bibitem{nadkarnijung2007}
+Nadkarni S, Jung P.
+\newblock Modeling synaptic transmission of the tripartite synapse.
+\newblock Physical Biology. 2007;4(1):1--9.
+\newblock doi:{10.1088/1478-3975/4/1/001}.
+
+\bibitem{Savtchenko2018}
+Savtchenko LP, Bard L, Jensen TP, Reynolds JP, Kraev I, Medvedev N, et~al.
+\newblock Disentangling astroglial physiology with a realistic cell model in
+silico.
+\newblock Nature Communications. 2018;9(1):3554.
+\newblock doi:{10.1038/s41467-018-05896-w}.
+
+\bibitem{depitta2016}
+De~Pitt{\`a} M, Brunel N.
+\newblock Modulation of Synaptic Plasticity by Glutamatergic Gliotransmission:
+A Modeling Study.
+\newblock Neural plasticity. 2016;2016.
+\newblock doi:{10.1155/2016/7607924}.
+
+\bibitem{tewari2012}
+Tewari SG, Majumdar KK.
+\newblock A mathematical model of the tripartite synapse: astrocyte-induced
+synaptic plasticity.
+\newblock Journal of Biological Physics. 2012;38(3):465--496.
+\newblock doi:{10.1007/s10867-012-9267-7}.
+
+\bibitem{Hubel2016a}
+H\"ubel N, Ullah G.
+\newblock Anions Govern Cell Volume: A Case Study of Relative Astrocytic and
+Neuronal Swelling in Spreading Depolarization.
+\newblock {PLoS} ONE. 2016;11(3):1--30.
+\newblock doi:{10.1371/journal.pone.0147060}.
+
+\bibitem{Kager2007}
+Kager H, Wadman WJ, Somjen GG.
+\newblock {Seizure-like afterdischarges simulated in a model neuron}.
+\newblock Journal of Computational Neuroscience. 2007;22(2):105--128.
+\newblock doi:{10.1007/s10827-006-0001-y}.
+
+\bibitem{Wei2014}
+Wei Y, Ullah G, Schiff SJ.
+\newblock Unification of Neuronal Spikes, Seizures, and Spreading Depression.
+\newblock Journal of Neuroscience. 2014;34(35):11733--11743.
+\newblock doi:{10.1523/JNEUROSCI.0516-14.2014}.
+
+\bibitem{Ullah2015}
+Ullah G, Wei Y, Dahlem MA, Wechselberger M, Schiff SJ.
+\newblock {The Role of Cell Volume in the Dynamics of Seizure, Spreading
+	Depression, and Anoxic Depolarization}.
+\newblock PLoS Computational Biology. 2015;11(8):e1004414.
+\newblock doi:{10.1371/journal.pcbi.1004414}.
+
+\bibitem{SchmidtKastner2015}
+Schmidt-Kastner R.
+\newblock Genomic approach to selective vulnerability of the hippocampus in
+brain ischemia–hypoxia.
+\newblock Neuroscience. 2015;309:259 -- 279.
+\newblock doi:{https://doi.org/10.1016/j.neuroscience.2015.08.034}.
+
+\bibitem{Tambasco2018}
+Tambasco N, Romoli M, Calabresi P.
+\newblock Selective basal ganglia vulnerability to energy deprivation:
+Experimental and clinical evidences.
+\newblock Progress in Neurobiology. 2018;169:55 -- 75.
+\newblock doi:{https://doi.org/10.1016/j.pneurobio.2018.07.003}.
+
+\bibitem{Brisson2012}
+Brisson CD, Andrew RD.
+\newblock {A neuronal population in hypothalamus that dramatically resists
+	acute ischemic injury compared to neocortex}.
+\newblock Journal of Neurophysiology. 2012;108(2):419--430.
+\newblock doi:{10.1152/jn.00090.2012}.
+
+\bibitem{Schaller2007}
+Schaller BJ.
+\newblock Influence of age on stroke and preconditioning-induced ischemic
+tolerance in the brain.
+\newblock Experimental Neurology. 2007;205(1):9 -- 19.
+\newblock doi:{https://doi.org/10.1016/j.expneurol.2006.01.017}.
+
+\bibitem{Kinoshita2016}
+Kinoshita PF, Leite JA, Orellana AMM, Vasconcelos AR, Quintas LEM, Kawamoto EM,
+et~al.
+\newblock The Influence of {Na$^+$}, {K$^+$}-{ATP}ase on Glutamate Signaling in
+Neurodegenerative Diseases and Senescence.
+\newblock Frontiers in Physiology. 2016;7:195.
+\newblock doi:{10.3389/fphys.2016.00195}.
+
+\bibitem{Verkhratsky2016}
+Verkhratsky A, Zorec R, Rodríguez JJ, Parpura V.
+\newblock Astroglia dynamics in ageing and Alzheimer's disease.
+\newblock Current Opinion in Pharmacology. 2016;26:74 -- 79.
+\newblock doi:{https://doi.org/10.1016/j.coph.2015.09.011}.
+
+\bibitem{Sykova2008}
+Sykov{\'a} E, Nicholson C.
+\newblock Diffusion in Brain Extracellular Space.
+\newblock Physiological Reviews. 2008;88(4):1277--1340.
+\newblock doi:{10.1152/physrev.00027.2007}.
+
+\bibitem{Karus2015}
+Karus C, Mondrag{{\~a}}o MA, Ziemens D, Rose CR.
+\newblock Astrocytes restrict discharge duration and neuronal sodium loads
+during recurrent network activity.
+\newblock Glia. 2015;63(6):936--957.
+\newblock doi:{10.1002/glia.22793}.
+
+\bibitem{Nelson2008}
+Nelson P.
+\newblock {Biological Physics. Energy, Information, Life.}
+\newblock New York: W.H. Freeman and Company; 2008.
+
+\bibitem{Hubel2016}
+H{\"u}bel N, Andrew RD, Ullah G.
+\newblock Large extracellular space leads to neuronal susceptibility to
+ischemic injury in a {Na$^+$/K$^+$} pumps--dependent manner.
+\newblock Journal of Computational Neuroscience. 2016;40(2):177--192.
+\newblock doi:{10.1007/s10827-016-0591-y}.
+
+\bibitem{Larsen2014}
+Larsen BR, Assentoft M, Cotrina ML, Hua SZ, Nedergaard M, Kaila K, et~al.
+\newblock Contributions of the {Na$^+$}/{K$^+$}-{ATP}ase, {NKCC}1, and {K}ir4.1
+to hippocampal {K$^+$} clearance and volume responses.
+\newblock Glia. 2014;62(4):608--622.
+\newblock doi:{10.1002/glia.22629}.
+
+\bibitem{Kunchok2019}
+Kunchok A, Zekeridou A, McKeona A.
+\newblock {Autoimmune glial fibrillary acidic protein astrocytopathy}.
+\newblock Curr Opin Neurol. 2019;32(3):452--458.
+
+\bibitem{Munster2011}
+van Munster BC, Aronica E, Zwinderman AH, Eikelenboom P, Cunningham C, de~Rooij
+SEJA.
+\newblock Neuroinflammation in Delirium: A Postmortem Case-Control Study.
+\newblock Rejuvenation Research. 2011;14(6):615--622.
+\newblock doi:{10.1089/rej.2011.1185}.
+
+\bibitem{Kubik:2015}
+Kubik LL, Philbert MA.
+\newblock The Role of Astrocyte Mitochondria in Differential Regional
+Susceptibility to Environmental Neurotoxicants: Tools for Understanding
+Neurodegeneration.
+\newblock Toxicological Sciences. 2015;144(1):7 -- 16.
+\newblock doi:{10.1093/toxsci/kfu254}.
+
+\bibitem{Attwell93}
+Attwell D, Barbour B, Szatkowski M.
+\newblock Nonvesicular release of neurotransmitter.
+\newblock Neuron. 1993;11(3):401 -- 407.
+\newblock doi:{https://doi.org/10.1016/0896-6273(93)90145-H}.
+
+\bibitem{Brisson2014}
+Brisson CD, Hsieh YT, Kim D, Jin AY, Andrew RD.
+\newblock Brainstem Neurons Survive the Identical Ischemic Stress That Kills
+Higher Neurons: Insight to the Persistent Vegetative State.
+\newblock PLoS ONE. 2014;9(5):1--16.
+\newblock doi:{10.1371/journal.pone.0096585}.
+
+\bibitem{Andrew2017}
+Andrew RD, Hsieh YT, Brisson CD.
+\newblock Spreading depolarization triggered by elevated potassium is weak or
+absent in the rodent lower brain.
+\newblock Journal of Cerebral Blood Flow \& Metabolism. 2017;37(5):1735--1747.
+\newblock doi:{10.1177/0271678X16657344}.
+
+\bibitem{VanDrongelen2006}
+van Drongelen W, Koch H, Elsen FP, Lee HC, Mrejeru A, Doren E, et~al.
+\newblock Role of Persistent Sodium Current in Bursting Activity of Mouse
+Neocortical Networks In Vitro.
+\newblock J Neurophysiol. 2006;96:2564--2577.
+\newblock doi:{10.1152/jn.00446.2006.}
+
+\bibitem{Liu2012}
+Liu XS, Chopp M, Kassis H, Jia LF, Hozeska-Solgot A, Zhang RL, et~al.
+\newblock Valproic acid increases white matter repair and neurogenesis after
+stroke.
+\newblock Neuroscience. 2012;220:313--321.
+\newblock doi:{10.1016/j.neuroscience.2012.06.012}.
+
+\bibitem{Ostby2009}
+{\O}stby I, {\O}yehaug L, Einevoll GT, Nagelhus EA, Plahte E, Zeuthen T, et~al.
+\newblock Astrocytic mechanisms explaining neural-activity-induced shrinkage of
+extraneuronal space.
+\newblock {PLoS} Computational Biology. 2009;5(1):e1000272.
+\newblock doi:{10.1371/journal.pcbi.1000272}.
+
+\bibitem{DePitta2009}
+De~Pitt{\`a} M, Goldberg M, Volman V, Berry H, Ben-Jacob E.
+\newblock Glutamate regulation of calcium and {IP$_3$} oscillating and
+pulsating dynamics in astrocytes.
+\newblock Journal of Biological Physics. 2009;35(4):383--411.
+\newblock doi:{10.1007/s10867-009-9155-y}.
+
+\bibitem{Cotrina98}
+Cotrina ML, Kang J, Lin JHC, Bueno E, Hansen TW, He L, et~al.
+\newblock Astrocytic Gap Junctions Remain Open during Ischemic Conditions.
+\newblock Journal of Neuroscience. 1998;18(7):2520--2537.
+\newblock doi:{10.1523/JNEUROSCI.18-07-02520.1998}.
+
+
+		
+	\end{thebibliography}
+
+

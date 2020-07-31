@@ -19,13 +19,15 @@ function pre_train(args::Dict,rhs,sens_rhs)
     losses_ = Dict()
     NN = Dict()
     
-    encoder, decoder, par_encoder, par_decoder = get_autoencoder(args) 
+    encoder, decoder, par_encoder, par_decoder, u0_train = get_autoencoder(args) 
     x_train,dx_train,alpha_train, dxda_train, dtdxda_train = gen(args,rhs,sens_rhs,args["training_size"])
 
     NN["encoder"] = encoder |> gpu
     NN["decoder"] = decoder |> gpu
     NN["par_decoder"] = par_decoder |> gpu 
     NN["par_encoder"] = par_encoder |> gpu
+    NN["u0_train"] = u0_train |> gpu
+    #NN["mean_par"] = Float32.(rand(args["par_dim"])) |> gpu
     
     training_data["x"] = x_train
     training_data["dxdt"] = dx_train

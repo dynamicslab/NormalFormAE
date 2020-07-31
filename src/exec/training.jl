@@ -8,6 +8,8 @@ function train(args::Dict,train_data::Dict, NN::Dict,trained_NN1::Tuple,trained_
     decoder = NN["decoder"]
     par_encoder = NN["par_encoder"]
     par_decoder = NN["par_decoder"]
+    u0_train = NN["u0_train"]
+    #mean_par = NN["mean_par"]
 
     
     # function gen_plot()
@@ -57,21 +59,21 @@ function train(args::Dict,train_data::Dict, NN::Dict,trained_NN1::Tuple,trained_
         dxda_batch = 0
         dtdxda_batch = 0
         println("Epoch ",i)
-        #for j=1:args["nBatches"]
-        for j=1:args["training_size"]
+        nbatches = div(args["training_size"],args["BatchSize"])
+        for j=1:nbatches
             println("L_Batch ",j)
-            #batchsize = div(args["training_size"],args["nBatches"])
-            #index1 = (j-1)*batchsize+1
-            #index2 = j*batchsize
+            batchsize = args["BatchSize"]
+            index1 = (j-1)*batchsize+1
+            index2 = j*batchsize
             #ind_ = shuffle(index1:index2)
-            #ind_ = index1:index2
-            x_batch = x_train[:,:,j] |> gpu
-            dx_batch = dx_train[:,:,j] |> gpu
-            alpha_batch = alpha_train[:,j] |> gpu
-            dxda_batch = dxda_train[:,:,:,j] |> gpu
-            dtdxda_batch = dtdxda_train[:,:,:,j] |> gpu
+            ind_ = index1:index2
+            x_batch = x_train[:,:,ind_] |> gpu
+            dx_batch = dx_train[:,:,ind_] |> gpu
+            alpha_batch = alpha_train[:,ind_] |> gpu
+            dxda_batch = dxda_train[:,:,:,ind_] |> gpu
+            dtdxda_batch = dtdxda_train[:,:,:,ind_] |> gpu
 
-            loss_ = build_loss(args,dzdt_rhs,dzdt_sens_rhs,encoder,decoder,par_encoder,par_decoder)
+            loss_ = build_loss(args,dzdt_rhs,dzdt_sens_rhs,encoder,decoder,par_encoder,par_decoder,u0_train)
             loss = 0.0f0
             # args["batchsize"] = div(args["training_size"],args["nBatches"])
             # Train 1
@@ -94,7 +96,7 @@ function train(args::Dict,train_data::Dict, NN::Dict,trained_NN1::Tuple,trained_
                 grad = back(1f0)
                 Flux.Optimise.update!(Flux.Optimiser(ADAM(args["ADAMarg"]),WeightDecay(0.01)),ps,grad)
             end
-            println("  Train loss: ",args["loss_total"]," AE: ",args["loss_AE"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"], " par: ",args["loss_par"],  " sens_x: ",args["loss_sens_x"],  " sens_dt: ",args["loss_sens_dt"]  )
+            println("  Train loss: ",args["loss_total"]," AE: ",args["loss_AE"]," dxdt: ",args["loss_dxdt"], " dzdt: ",args["loss_dzdt"], " par: ",args["loss_par"],  " sens_x: ",args["loss_sens_x"],  " sens_dt: ",args["loss_sens_dt"], " NLRAN_in: ", args["loss_NLRAN_in"], " NLRAN_out: ",args["loss_NLRAN_out"], " u0: ",args["loss_u0"])
             # plotter(plot_,test_loss,loss,ctr)
             # display(plot(plot_...))
             # ctr = ctr+1
