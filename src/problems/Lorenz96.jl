@@ -90,9 +90,9 @@ function dzdt_rhs(dz,z,p,t)
 end
 
 function dzdt_rhs(x,p,t)
-    dx_ = Zygote.Buffer(x,args["z_dim"],args["tsize"])
-    dx_[1,:] = p[1].*x[1,:] .- x[2,:] .- x[1,:] .* (x[1,:].^2 .+ x[2,:].^2)
-    dx_[2,:] = x[1,:] .+ p[1] .* x[2,:] .- x[2,:] .*(x[1,:].^2 .+ x[2,:].^2)
+    dx_ = Zygote.Buffer(x,args["z_dim"],args["BatchSize"]*args["tsize"])
+    dx_[1,:] = p[1,:].*x[1,:] .- x[2,:] .- x[1,:] .* (x[1,:].^2 .+ x[2,:].^2)
+    dx_[2,:] = x[1,:] .+ p[1,:] .* x[2,:] .- x[2,:] .*(x[1,:].^2 .+ x[2,:].^2)
     return copy(dx_)
 end
 
