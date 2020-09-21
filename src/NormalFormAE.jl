@@ -1,6 +1,6 @@
 module NormalFormAE
 
-using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, Random, PolyChaos, Zygote, DiffEqFlux, DiffEqSensitivity, LinearAlgebra
+using DifferentialEquations, Flux, Distributions, Plots, CUDAapi, Random, PolyChaos, Zygote, DiffEqFlux, DiffEqSensitivity, LinearAlgebra, Printf, LaTeXStrings
 
 
 include("exec/autoencoder.jl")
@@ -19,7 +19,7 @@ function pre_train(args::Dict,rhs,sens_rhs)
     losses_ = Dict()
     NN = Dict()
     
-    encoder, decoder, par_encoder, par_decoder, u0_train = get_autoencoder(args) 
+    encoder, decoder, par_encoder, par_decoder, tscale = get_autoencoder(args) 
     x_train,dx_train,alpha_train, dxda_train, dtdxda_train = gen(args,rhs,sens_rhs,args["training_size"])
     x_test,dx_test,alpha_test, dxda_test, dtdxda_test = gen(args,rhs,sens_rhs,args["test_size"])
 
@@ -27,7 +27,7 @@ function pre_train(args::Dict,rhs,sens_rhs)
     NN["decoder"] = decoder |> gpu
     NN["par_decoder"] = par_decoder |> gpu 
     NN["par_encoder"] = par_encoder |> gpu
-    NN["u0_train"] = u0_train |> gpu
+    NN["tscale"] = tscale |> gpu
     #NN["mean_par"] = Float32.(rand(args["par_dim"])) |> gpu
     
     training_data["x"] = x_train
