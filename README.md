@@ -23,5 +23,5 @@ which will automatically install the necessary `Julia` packages you need.
 julia -i run/run_Hopf.jl
 ```
 ## Note on branches
-- `master` contains the standard AE + NLRAN + sensitivity analysis 
+- `master` contains the standard AE + NLRAN + (scalar) time scaling
 - branch `Kathleen` implements the [(Champion et al, 2019)](https://www.pnas.org/content/116/45/22445.abstract) model execpt for switching SINDy with an explicit RHS of the latent dynamics.
