@@ -1,35 +1,25 @@
-# x: Hopf NF + quartic nonlinearity
-# z: Hopf NF
-# par: scalar Hopf parameter; subcritical Hopf
 
-# dxdt_rhs
 function dxdt_rhs(dx,u,par,t)
     x = u .+ args["bif_x"]
     p = par .+ args["bif_p"]
-    dx[1] = x[end]*(x[2] - x[end-1]) - x[1] + p[1]
-    dx[2] = x[1]*(x[3]-x[end])-x[2]+p[1]
-    dx[end] = x[end-1]*(x[1]-x[end-2])-x[end] + p[1]
-    for i=3:(size(dx,1)-1)
-        dx[i] = x[i-1]*(x[i+1]-x[i-2])-x[i]+p[1]
-    end
+    p_pf = args["p_pf"]
+    p_lp = args["p_lp"]
+    x_lp = args["x_lp"]
+    p_tc = p_lp - x_lp^2        
+    dx[1] = 0.01f0*x[1]*(p[1]-p_pf-x[1]^2)*(p[1]-p_lp+(x[1]-x_lp)^2)
     return dx
 end
 
 function dxdt_rhs(u,par,t)
     x = u .+ args["bif_x"]
     p = par .+ args["bif_p"]
-    dx_ = Zygote.Buffer(x,args["x_dim"],args["tsize"])
-    ind_ = args["x_dim"]
-    dx_[1,:] = x[ind_,:] .*(x[2,:] .- x[ind_-1,:]) .- x[1,:] .+ p[1]
-    dx_[2,:] = x[1,:].*(x[3,:].-x[ind_,:]).-x[2,:].+p[1]
-    dx_[ind_,:] = x[ind_-1,:].*(x[1,:].-x[ind_-2,:]).-x[ind_,:] .+ p[1]
-    for i=3:(size(dx_,1)-1)
-        dx_[i,:] = x[i-1,:] .* (x[i+1,:] .- x[i-2,:]) .- x[i,:] .+p[1]
-    end
-    return copy(dx_)
+    p_pf = args["p_pf"]
+    p_lp = args["p_lp"]
+    x_lp = args["x_lp"]
+    p_tc = p_lp - x_lp^2        
+    dx = 0.01f0 .* x .* (p .- p_pf .- (x .^ 2)) .* (p .- p_lp .+ (x .- x_lp).^ 2)
+    return dx
 end
-
-# dxdt_jac 
 function dxdt_jac(u,par,t)
     x = u .+ args["bif_x"]
     p = par .+ args["bif_p"]
@@ -83,18 +73,38 @@ end
 # ------------------------------------------------------------------------------------
 
 # dzdt_rhs
-function dzdt_solve(dz,z,p,t)
-    dz[1] = p[1]*z[1]-z[2]-z[1]*(z[1]^2+z[2]^2)
-    dz[2] = z[1]+p[1]*z[2]-z[2]*(z[1]^2+z[2]^2)
+function dzdt_trans_solve(dz,z,p,t)
+    dz .= (1 ./ (p[2]^2)) .* z .* (p[1] .+ z)
+end
+
+function dzdt_trans_rhs(z,p,t,bsize::Int)
+    dz = Zygote.Buffer(z,size(z))
+    dz[1,:] =  (1 ./ (p[2,:].^2)) .* (z[1,:] .* (p[1,:] .+ z[1,:]))
+    return copy(dz)    
+end
+
+function dzdt_lp_solve(dz,z,p,t)
+    dz .= (1 ./ (p[2]^2)) .* (p[1] .+ z.^2)
     return dz
 end
 
-function dzdt_rhs(x,p,t,bsize::Int)
-    dx_ = Zygote.Buffer(x,args["z_dim"],bsize*args["tsize"])
-    dx_[1,:] = p[1,:].*x[1,:] .- x[2,:] .- x[1,:] .* (x[1,:].^2 .+ x[2,:].^2)
-    dx_[2,:] = x[1,:] .+ p[1,:] .* x[2,:] .- x[2,:] .*(x[1,:].^2 .+ x[2,:].^2)
-    return copy(dx_)
+function dzdt_lp_rhs(z,p,t,bsize::Int)
+    dz = Zygote.Buffer(z,size(z))
+    dz[1,:] =  (1 ./ (p[2,:] .^ 2)) .* (p[1,:] .+ z[1,:] .^2)
+    return copy(dz)    
 end
+
+
+function dzdt_pitchfork_solve(dz,z,p,t)
+    dz .= (1/(p[2]^2)) .* (p[1] .* z .- z .^ 3)
+end
+
+function dzdt_pitchfork_rhs(z,p,t,bsize::Int)
+    dz = Zygote.Buffer(z,size(z))
+    dz[1,:] =  (1 ./ (p[2,:] .^ 2)) .* (p[1,:] .* z[1,:] .- z[1,:].^3)
+    return copy(dz)   
+end
+
 
 # dzdt_jac 
 function dzdt_jac(x,p,t)
