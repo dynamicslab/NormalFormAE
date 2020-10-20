@@ -216,6 +216,8 @@ function build_loss(args,dzdt_rhs,dzdt_solve,dzdt_sens_rhs)
         dec_par = par_decoder(par_adjust) # CAREFUL: TRANSLATION ADDED
         dec_ = decoder(enc_)
         # Consistency losses
+
+        
         dz1 = dt_NN(encoder,in_,dx_,args["AE_acts"])
         #enc_par_temp = enc_par*reduce(hcat,[Matrix{Float32}(I,1,1) for i in 1:tdim])
         id_ = repeat(Matrix{Float32}(I,bsize,bsize),inner=(1,args["tsize"])) |> gpu

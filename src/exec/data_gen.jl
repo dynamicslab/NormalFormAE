@@ -36,7 +36,7 @@ function gen(args,dxdt_rhs,dxdt_sens_rhs,n_ics,type_="training")
         #prob = ODEForwardSensitivityProblem(dxdt_rhs, ic[1:args["x_dim"],i],(args["tspan"][1],args["tspan"][2]),ic[args["x_dim"]+1:end,i])
         prob = ODEProblem(dxdt_rhs, ic[1:args["x_dim"],i],(args["tspan"][1],args["tspan"][2]),ic[args["x_dim"]+1:end,i])
         t = range(args["tspan"][1],args["tspan"][2],length = args["tsize"])
-        sol = solve(prob,BS3(),saveat=t,dt_max=(args["tspan"][2]-args["tspan"][1])/args["tsize"],reltol=1e-8,abstol=1e-8)
+        sol = solve(prob,Tsit5(),saveat=t,dt_max=(args["tspan"][2]-args["tspan"][1])/args["tsize"],reltol=1e-8,abstol=1e-8)
         #x_,dxda_ = extract_local_sensitivities(sol)
         x_ = Array(sol)
         try
@@ -44,6 +44,7 @@ function gen(args,dxdt_rhs,dxdt_sens_rhs,n_ics,type_="training")
         catch e
             p = plot(x_')
             display(p)
+            println(i)
             println(ic[:,i])
         end
         dxdt[:,:,i] = dxdt_rhs(x_,ic[args["x_dim"]+1:end,i],t)
