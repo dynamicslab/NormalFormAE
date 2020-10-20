@@ -1,0 +1,3 @@
+#!/bin/bash
+julia run/run_NeuralFieldSFA.jl
+julia run/run_Hopf.jl

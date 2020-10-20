@@ -44,12 +44,15 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
         push!(p,tmp_)
         return p
     end
-    function enssol(nplot,xdata,par;tscale=0)
+    function enssol(args,nplot,xdata,par;tscale=0)
         sol_ = zeros(args["z_dim"],args["tsize"]*args["nPlots"])
         lower_ = zeros(args["z_dim"],args["tsize"]*args["nPlots"])
         upper_ = zeros(args["z_dim"],args["tsize"]*args["nPlots"])
         #prob = ODEProblem(dzdt_rhs,xdata[:,1],(args["tspan"][1],args["tspan"][2]),par[:,1])
-        prob_func = (prob,i,repeat) -> remake(prob,u0=prob.u0 .+ args["varPlot"]*rand(args["z_dim"]))
+        
+        prob_func = (prob,i,repeat) -> remake(prob,u0=prob.u0 .+
+                                              args["VarPlot"] .* (1.0 .- rand(args["z_dim"]))
+                                              .- args["VarPlot"]./2)
         for i=1:args["nPlots"]
             ind_ = (i-1)*args["tsize"]+1
             if tscale == 0
@@ -68,21 +71,22 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
     function plotter(p,test_loss,train_loss,ctr,encoder,par_encoder;tscale=0)
         ind_ = 1:args["z_dim"]
         if args["nPlots"] != 0
-            lower_, upper_, sol_ = enssol(args["nEnsPlot"],cpu(encoder(gpu(x_test))),cpu(par_encoder(gpu(alpha_test))),tscale=tscale)
+            lower_, upper_, sol_ = enssol(args,args["nEnsPlot"],cpu(encoder(gpu(x_test))),cpu(par_encoder(gpu(alpha_test))),tscale=tscale)
             for i in ind_
                 p[i] = plot(1:(args["tsize"]*args["nPlots"]),encoder(gpu(x_test))[i,1:args["tsize"]*args["nPlots"]],label="",title=latexstring("\\textrm{Test data: } z_$(i)"),titlefont=font(10),lab="Enc.")
                 plot!([sol_[i,:] sol_[i,:]], fillrange= [lower_[i,:] upper_[i,:]], linealpha = 0.0, fillalpha = 0.3, c=:black,label="Sim.",legend=:topright,legendfontsize=5)
             end
             i = ind_[end]+1
+        else
+            i=1
         end
-        i = 1
         push!(p[i],[ctr],[test_loss])
         i = i+1
         push!(p[i],[ctr],[train_loss])
         i = i+1
         alpha_test_ = sort(alpha_test,dims=2)
-        p[i] = scatter(par_encoder(gpu(alpha_test_))',markershape=:rect,markersize=4,label="Enc",title="Parameter(s)",titlefont=font(10))
-        scatter!(alpha_test_',markershape=:utriangle,markersize=4,markeralpha=0.5,label="GT",legend=:bottomright,legendfontsize=5)
+        p[i] = scatter(par_encoder(gpu(alpha_test_))[1:args["par_dim"],:]',markershape=:rect,markersize=4,label="Enc",title="Parameter(s)",titlefont=font(10))
+        scatter!(alpha_test_[1:args["par_dim"],:]',markershape=:utriangle,markersize=4,markeralpha=0.5,label="GT",legend=:bottomright,legendfontsize=5)
     end
     ctr = 1 
     ind = Int(ceil(sqrt(args["z_dim"])))
@@ -111,7 +115,7 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
             end
         grad = back(1f0)
             Flux.Optimise.update!(ADAM(0.001),ps,grad)
-            sign_ = sum(abs2,sign.(NN["par_encoder"](gpu(alpha_train))) .- sign.(gpu(alpha_train)))
+            sign_ = sum(abs2,sign.(NN["par_encoder"](gpu(alpha_train))[1:args["par_dim"],:]) .- sign.(gpu(alpha_train)))
             println("Sign: ",sign_)
         end
         println("Parameter orientation complete...")
@@ -120,8 +124,8 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
         #----------------------------------------------------------------------------------
         # Training
         #----------------------------------------------------------------------------------
-        
-    for i=1:args["nEpochs"]
+    i = 1
+    while i <= args["nEpochs"]
         x_batch = 0
         dx_batch = 0
         alpha_batch = 0
@@ -187,7 +191,11 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
             println("  Relative train loss: $(pp(args["rel_loss_total"])) AE:  $(pp(args["rel_loss_AE"])) dxdt: $(pp(args["rel_loss_dxdt"])) dzdt: $(pp(args["rel_loss_dzdt"])) par: $(pp(args["rel_loss_par"])) NLRAN_in: $(pp(args["rel_loss_NLRAN_in"])) NLRAN_out: $(pp(args["rel_loss_NLRAN_out"])) Orientation: $(pp(args["rel_loss_orient"])) Zero function: $(pp(args["rel_loss_zero"]))")
 
             # Deploy plotting
-            plotter(plot_,test_loss,loss,ctr,NN["encoder"],NN["par_encoder"],tscale=cpu(NN["tscale"]))
+            if args["Par_widths"][end] - args["Par_widths"][1] == 0
+                plotter(plot_,test_loss,loss,ctr,NN["encoder"],NN["par_encoder"],tscale=cpu(NN["tscale"]))
+            else
+                plotter(plot_,test_loss,loss,ctr,NN["encoder"],NN["par_encoder"],tscale=0)
+            end
             l=0
             if args["nPlots"] == 0
                 l = @layout[grid(1,1) grid(1,1) grid(1,1)]
@@ -202,9 +210,13 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
                 display(plot(plot_...,layout=l))
                 ctr = ctr+1
             end
+
+            
         end       
-        
+    i = i+1    
     end
+
+    return plot_,enssol
 end
 
             

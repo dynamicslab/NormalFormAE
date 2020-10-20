@@ -1,26 +1,14 @@
-# x: Hopf NF + quartic nonlinearity
-# z: Hopf NF
-# par: scalar Hopf parameter; subcritical Hopf
+# Lorenz96
 
 # dxdt_rhs
-function dxdt_rhs(dx_,u,par,t)
+function dxdt_rhs(dx,u,par,t)
     x = u .+ args["bif_x"]
     p = par .+ args["bif_p"]
-    aa = args["par_aa"]
-    bb = args["par_bb"]
-    dx = args["par_dx"]
-    dy = args["par_dy"]
-    # x = 0
-    dx_[1] = 0.0f0
-    dx_[2] = 0.0f0
-    # x = N
-    dx_[end-1] = 0.0f0
-    dx_[end] = 0.0f0
-    i = 3
-    while i<(args["x_dim"]-2)
-        dx_[i] = (dx/p[1]*(x[i-2] + x[i+2] - 2.0f0 * x[i])*(args["x_dim"]-1)^2 + x[i]^2*x[i+1] - (bb + 1.0f0)*x[i] + aa)
-        dx_[i+1] = (dy/p[1]*(x[i-2] + x[i+2] -2.0f0 * x[i])*(args["x_dim"]-1)^2 + bb*x[i-1] - x[i-1]^2*x[i])
-        i = i+2
+    dx[1] = x[end]*(x[2] - x[end-1]) - x[1] + p[1]
+    dx[2] = x[1]*(x[3]-x[end])-x[2]+p[1]
+    dx[end] = x[end-1]*(x[1]-x[end-2])-x[end] + p[1]
+    for i=3:(size(dx,1)-1)
+        dx[i] = x[i-1]*(x[i+1]-x[i-2])-x[i]+p[1]
     end
     return dx
 end
@@ -30,21 +18,11 @@ function dxdt_rhs(u,par,t)
     p = par .+ args["bif_p"]
     dx_ = Zygote.Buffer(x,args["x_dim"],args["tsize"])
     ind_ = args["x_dim"]
-    aa = args["par_aa"]
-    bb = args["par_bb"]
-    dx = args["par_dx"]
-    dy = args["par_dy"]
-    # x = 0
-    dx_[1,:] = zeros(Float32,args["tsize"])
-    dx_[2,:] = zeros(Float32,args["tsize"])
-    # x = N
-    dx_[ind_-1,:] = zeros(Float32,args["tsize"])
-    dx_[ind_,:] = zeros(Float32,args["tsize"])
-    i = 3
-    while i<(args["x_dim"]-2)
-        dx_[i,:] = dx/p[1] .* (x[i-2,:] .+ x[i+2,:] .- 2.0f0 .* x[i,:]) .* (args["x_dim"]-1)^2 .+ (x[i,:] .^ 2.0f0) .* x[i+1,:] .- (bb + 1.0f0) .* x[i,:] .+ aa
-        dx_[i+1,:] = dy/p[1] .* (x[i-2,:] .+ x[i+2,:] .- 2.0f0 .* x[i,:]) .* (args["x_dim"]-1)^2 .+ bb .* x[i-1,:] .- (x[i-1,:].^2.0f0) .* x[i,:]
-        i = i+2
+    dx_[1,:] = x[ind_,:] .*(x[2,:] .- x[ind_-1,:]) .- x[1,:] .+ p[1]
+    dx_[2,:] = x[1,:].*(x[3,:].-x[ind_,:]).-x[2,:].+p[1]
+    dx_[ind_,:] = x[ind_-1,:].*(x[1,:].-x[ind_-2,:]).-x[ind_,:] .+ p[1]
+    for i=3:(size(dx_,1)-1)
+        dx_[i,:] = x[i-1,:] .* (x[i+1,:] .- x[i-2,:]) .- x[i,:] .+p[1]
     end
     return copy(dx_)
 end
@@ -104,15 +82,15 @@ end
 
 # dzdt_rhs
 function dzdt_solve(dz,z,p,t)
-    dz[1] = p[1]*z[1]-z[2]-z[1]*(z[1]^2+z[2]^2)
-    dz[2] = z[1]+p[1]*z[2]-z[2]*(z[1]^2+z[2]^2)
+    dz[1] = (1/p[2]^2)*(p[1]*z[1]-z[2]-z[1]*(z[1]^2+z[2]^2))
+    dz[2] = (1/p[2])*(z[1]+p[1]*z[2]-z[2]*(z[1]^2+z[2]^2))
     return dz
 end
 
-function dzdt_rhs(x,p,t)
-    dx_ = Zygote.Buffer(x,size(x))
-    dx_[1,:] = p[1,:].*x[1,:] .- x[2,:] .- x[1,:] .* (x[1,:].^2 .+ x[2,:].^2)
-    dx_[2,:] = x[1,:] .+ p[1,:] .* x[2,:] .- x[2,:] .*(x[1,:].^2 .+ x[2,:].^2)
+function dzdt_rhs(x,p,t,bsize::Int)
+    dx_ = Zygote.Buffer(x,args["z_dim"],bsize*args["tsize"])
+    dx_[1,:] = ((1 ./ p[2,:]) .^2) .* (p[1,:].*x[1,:] .- x[2,:] .- x[1,:] .* (x[1,:].^2 .+ x[2,:].^2))
+    dx_[2,:] = ((1 ./ p[2,:]) .^2) .* (x[1,:] .+ p[1,:] .* x[2,:] .- x[2,:] .*(x[1,:].^2 .+ x[2,:].^2))
     return copy(dx_)
 end
 
