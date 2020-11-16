@@ -79,14 +79,18 @@ function get_autoencoder(args::Dict)
     Par_widths = args["Par_widths"]
     AE_acts = args["AE_acts"]
     Par_acts = args["Par_acts"]
+    trans_widths = args["Trans_widths"]
+    trans_acts = args["Trans_acts"]
 
     encoder = get_NN_Flux(AE_widths,AE_acts)
     decoder = get_NN_Flux(reverse(AE_widths),[reverse(args["AE_acts"])[2:end];"id"])
     par_encoder = get_NN_Flux(Par_widths,Par_acts)
     par_decoder = get_NN_Flux(reverse(Par_widths),[reverse(args["Par_acts"])[2:end];"id"])
+    trans_encoder = get_NN_Flux(trans_widths, trans_acts)
+    trans_decoder = get_NN_Flux(reverse(trans_widths),[reverse(args["Trans_acts"])[2:end];"id"])
     tscale = [args["tscale_init"]]
  
-    return encoder, decoder, par_encoder,par_decoder, tscale
+    return encoder, decoder, par_encoder,par_decoder, trans_encoder, trans_decoder, tscale
 end
 
 
@@ -185,7 +189,7 @@ function build_loss(args,dzdt_rhs,dzdt_solve,dzdt_sens_rhs)
     function predict_ODE_solve(x,y)
         return Array(solve(ode_prob(x,y),Tsit5(),saveat=t_batch,reltol=1e-4)) 
     end
-    function loss_(encoder, decoder, par_encoder, par_decoder, u0_train,tscale,in_batch,dx_batch,par_batch,dxda_batch,dtdxda_batch,testt)
+    function loss_(encoder, decoder, par_encoder, par_decoder, trans_encoder, trans_decoder, u0_train,tscale,in_batch,dx_batch,par_batch,dxda_batch,dtdxda_batch,testt)
         bsize = 0
         if testt>0
             bsize = args["test_size"]
@@ -209,12 +213,14 @@ function build_loss(args,dzdt_rhs,dzdt_solve,dzdt_sens_rhs)
         in_ = in_batch
         dx_ = dx_batch
         par_ = par_batch
-        
-        enc_ = encoder(in_)
+
+        enc_pre = encoder(in_)
         par_adjust = par_encoder(par_)
-        enc_par = par_adjust # CAREFUL: TRANSLATION ADDED
-        dec_par = par_decoder(par_adjust) # CAREFUL: TRANSLATION ADDED
-        dec_ = decoder(enc_)
+        id_ = repeat(Matrix{Float32}(I,bsize,bsize),inner=(1,args["tsize"])) |> gpu
+        enc_ = enc_pre .+ trans_encoder(par_adjust*id_)
+        enc_par = par_adjust 
+        dec_par = par_decoder(par_adjust)
+        dec_ = decoder(enc_pre)
         # Consistency losses
 
         
@@ -313,8 +319,8 @@ function build_loss(args,dzdt_rhs,dzdt_solve,dzdt_sens_rhs)
         #     # loss_par_id = loss_par_id + Float32(1/args["BatchSize"])*args["P_AE_id"]*Flux.mse(par_,par_adjust)
         # end
         loss_AE_state = args["P_AE_state"]*Flux.mse(in_,dec_)
-        loss_dxdt = args["P_cons_x"]*Flux.mae(dx_,dx1)
-        loss_dzdt = args["P_cons_z"]*Flux.mae(dz1,dzdt_rhs(enc_,enc_par_aug*id_,0.0f0,bsize))
+        loss_dxdt = args["P_cons_x"]*Flux.mse(dx_,dx1)
+        loss_dzdt = args["P_cons_z"]*Flux.mse(dz1,dzdt_rhs(enc_,enc_par_aug*id_,0.0f0,bsize))
         loss_AE_par = args["P_AE_par"]*Flux.mse(dec_par,par_)
         if args["P_NLRAN_in"] !=0
             loss_NLRAN_in = args["P_NLRAN_in"]*Flux.mse(enc_ODE_solve,enc_)
@@ -325,8 +331,10 @@ function build_loss(args,dzdt_rhs,dzdt_solve,dzdt_sens_rhs)
         end
         #loss_u0 = args["P_u0"]*Flux.mse(u0_train,enc_init)
         loss_orient = args["P_orient"]*Flux.mae(sign.(enc_par_aug[1:p_,:]) , sign.(par_))
-        loss_zero = args["P_zero"]*1/args["x_dim"]*sum(abs,encoder(gpu(zeros(Float32,args["x_dim"],1))))
-
+        # loss_zero = args["P_zero"]*1/args["x_dim"]*sum(abs,encoder(gpu(zeros(Float32,args["x_dim"],1))))
+        #loss_zero = args["P_zero"]*1/args["x_dim"]*sum(abs,encoder(gpu(zeros(Float32,args["x_dim"],1))) .+ trans(par_encoder(gpu(zeros(Float32,args["par_dim"],1)))))
+        loss_zero = args["P_zero"]*1/args["x_dim"]*sum(abs,dzdt_rhs(trans_encoder(enc_par),enc_par_aug,0.0f0,bsize))
+        loss_trans = args["P_trans"]*Flux.mse(enc_par,trans_decoder(trans_encoder(enc_par)))
         
         args["rel_loss_AE"] = loss_AE_state/sum(abs2,in_)*bsize
         args["rel_loss_dxdt"] = loss_dxdt/sum(abs2,dx_)*bsize
@@ -344,6 +352,7 @@ function build_loss(args,dzdt_rhs,dzdt_solve,dzdt_sens_rhs)
         end
         args["rel_loss_orient"] = loss_orient/sum(abs2,sign.(par_))*bsize
         args["rel_loss_zero"] = loss_zero
+        args["rel_loss_trans"] = loss_trans/sum(abs2,enc_par)/bsize
 
         args["loss_AE"] = loss_AE_state
         args["loss_dxdt"] = loss_dxdt
@@ -356,11 +365,11 @@ function build_loss(args,dzdt_rhs,dzdt_solve,dzdt_sens_rhs)
         args["loss_NLRAN_out"] = loss_NLRAN_out
         args["loss_orient"] = loss_orient
         args["loss_zero"] = loss_zero
+        args["loss_trans"] = loss_trans
         
-        
-        loss_total = loss_AE_state + loss_dxdt + loss_dzdt + loss_AE_par + loss_NLRAN_in + loss_NLRAN_out + loss_orient + loss_zero
+        loss_total = loss_AE_state + loss_dxdt + loss_dzdt + loss_AE_par + loss_NLRAN_in + loss_NLRAN_out + loss_orient + loss_zero + loss_trans
         args["loss_total"] = loss_total
-        args["rel_loss_total"] = args["rel_loss_AE"] +args["rel_loss_dxdt"] + args["rel_loss_dzdt"]+ args["rel_loss_par"] + args["rel_loss_sens_dt"] + args["rel_loss_sens_x"] + args["rel_loss_par_id"] +  args["rel_loss_NLRAN_in"] + args["rel_loss_NLRAN_out"] + args["rel_loss_orient"]+ args["rel_loss_zero"] 
+        args["rel_loss_total"] = args["rel_loss_AE"] +args["rel_loss_dxdt"] + args["rel_loss_dzdt"]+ args["rel_loss_par"] + args["rel_loss_sens_dt"] + args["rel_loss_sens_x"] + args["rel_loss_par_id"] +  args["rel_loss_NLRAN_in"] + args["rel_loss_NLRAN_out"] + args["rel_loss_orient"]+ args["rel_loss_zero"] + args["rel_loss_trans"]
         return loss_total
     end
     return loss_

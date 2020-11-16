@@ -68,12 +68,14 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
         end
         return lower_, upper_, sol_
     end
-    function plotter(p,test_loss,train_loss,ctr,encoder,par_encoder;tscale=0)
+    function plotter(p,test_loss,train_loss,ctr,encoder,par_encoder,trans;tscale=0)
         ind_ = 1:args["z_dim"]
         if args["nPlots"] != 0
-            lower_, upper_, sol_ = enssol(args,args["nEnsPlot"],cpu(encoder(gpu(x_test))),cpu(par_encoder(gpu(alpha_test))),tscale=tscale)
+            id_ = repeat(Matrix{Float32}(I,args["test_size"],args["test_size"]),inner=(1,args["tsize"])) |> gpu
+            z_test = cpu(encoder(gpu(x_test)) .+ trans(par_encoder(gpu(alpha_test)))*id_)
+            lower_, upper_, sol_ = enssol(args,args["nEnsPlot"],z_test,cpu(par_encoder(gpu(alpha_test))),tscale=tscale)
             for i in ind_
-                p[i] = plot(1:(args["tsize"]*args["nPlots"]),encoder(gpu(x_test))[i,1:args["tsize"]*args["nPlots"]],label="",title=latexstring("\\textrm{Test data: } z_$(i)"),titlefont=font(10),lab="Enc.")
+                p[i] = plot(1:(args["tsize"]*args["nPlots"]),z_test[i,1:args["tsize"]*args["nPlots"]],label="",title=latexstring("\\textrm{Test data: } z_$(i)"),titlefont=font(10),lab="Enc.")
                 plot!([sol_[i,:] sol_[i,:]], fillrange= [lower_[i,:] upper_[i,:]], linealpha = 0.0, fillalpha = 0.3, c=:black,label="Sim.",legend=:topright,legendfontsize=5)
             end
             i = ind_[end]+1
@@ -158,9 +160,12 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
             # Compute test loss
             enc_ = NN["encoder"](gpu(test_data["x"]))
             NN["u0_train"] = hcat([enc_[:,(i-1)*args["tsize"]+1] for i in 1:args["test_size"]]...) |> gpu
-            test_loss = loss_(NN["encoder"],NN["decoder"],NN["par_encoder"],NN["par_decoder"],NN["u0_train"],NN["tscale"],gpu(test_data["x"]),gpu(test_data["dx"]),gpu(test_data["alpha"]),rand(1),rand(1),1)
-            println("  Test loss: $(pp(args["loss_total"])) AE:  $(pp(args["loss_AE"])) dxdt: $(pp(args["loss_dxdt"])) dzdt: $(pp(args["loss_dzdt"])) par: $(pp(args["loss_par"])) NLRAN_in: $(pp(args["loss_NLRAN_in"])) NLRAN_out: $(pp(args["loss_NLRAN_out"])) Orientation: $(pp(args["loss_orient"])) Zero function: $(pp(args["loss_zero"]))")
-            println("  Relative test loss: $(pp(args["rel_loss_total"])) AE:  $(pp(args["rel_loss_AE"])) dxdt: $(pp(args["rel_loss_dxdt"])) dzdt: $(pp(args["rel_loss_dzdt"])) par: $(pp(args["rel_loss_par"])) NLRAN_in: $(pp(args["rel_loss_NLRAN_in"])) NLRAN_out: $(pp(args["rel_loss_NLRAN_out"])) Orientation: $(pp(args["rel_loss_orient"])) Zero function: $(pp(args["rel_loss_zero"]))")
+            test_loss = loss_(NN["encoder"],NN["decoder"],NN["par_encoder"],NN["par_decoder"],NN["trans_encoder"],NN["trans_decoder"],NN["u0_train"],NN["tscale"],gpu(test_data["x"]),gpu(test_data["dx"]),gpu(test_data["alpha"]),rand(1),rand(1),1)
+
+            if args["IJulia"] != 1
+                println("  Test loss: $(pp(args["loss_total"])) AE:  $(pp(args["loss_AE"])) dxdt: $(pp(args["loss_dxdt"])) dzdt: $(pp(args["loss_dzdt"])) par: $(pp(args["loss_par"])) NLRAN_in: $(pp(args["loss_NLRAN_in"])) NLRAN_out: $(pp(args["loss_NLRAN_out"])) Orientation: $(pp(args["loss_orient"])) Zero function: $(pp(args["loss_zero"]))")
+                println("  Relative test loss: $(pp(args["rel_loss_total"])) AE:  $(pp(args["rel_loss_AE"])) dxdt: $(pp(args["rel_loss_dxdt"])) dzdt: $(pp(args["rel_loss_dzdt"])) par: $(pp(args["rel_loss_par"])) NLRAN_in: $(pp(args["rel_loss_NLRAN_in"])) NLRAN_out: $(pp(args["rel_loss_NLRAN_out"])) Orientation: $(pp(args["rel_loss_orient"])) Zero function: $(pp(args["rel_loss_zero"]))")
+            end
             
             # Training
             enc_ = NN["encoder"](x_batch)
@@ -169,7 +174,7 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
                 #Flux.train!(loss_,Flux.params(encoder,decoder,hom_encoder,hom_decoder),data_,ADAM(args["ADAMarg"]))
                 ps = Flux.params(trained_NN...)
                 loss, back = Flux.pullback(ps) do
-                     loss_(NN["encoder"],NN["decoder"],NN["par_encoder"],NN["par_decoder"],NN["u0_train"],NN["tscale"],x_batch,dx_batch,alpha_batch,dxda_batch,dtdxda_batch,0)
+                     loss_(NN["encoder"],NN["decoder"],NN["par_encoder"],NN["par_decoder"],NN["trans_encoder"],NN["trans_decoder"],NN["u0_train"],NN["tscale"],x_batch,dx_batch,alpha_batch,dxda_batch,dtdxda_batch,0)
                 end
                 grad = back(1f0)
                 Flux.Optimise.update!(ADAM(args["ADAMarg"]),ps,grad)
@@ -180,21 +185,23 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
             for i=1:args["nIt_tscale"]
                 ps = Flux.params(NN["tscale"])
                 loss, back = Flux.pullback(ps) do
-                     loss_(NN["encoder"],NN["decoder"],NN["par_encoder"],NN["par_decoder"],NN["u0_train"],NN["tscale"],x_batch,dx_batch,alpha_batch,dxda_batch,dtdxda_batch,0)
+                     loss_(NN["encoder"],NN["decoder"],NN["par_encoder"],NN["par_decoder"],NN["trans_encoder"],NN["trans_decoder"],NN["u0_train"],NN["tscale"],x_batch,dx_batch,alpha_batch,dxda_batch,dtdxda_batch,0)
                 end
                 grad = back(1f0)
                 Flux.Optimise.update!(ADAM(args["ADAMarg"]),ps,grad)
             end
 
             # Display Training loss
-            println("  Train loss: $(pp(args["loss_total"])) AE:  $(pp(args["loss_AE"])) dxdt: $(pp(args["loss_dxdt"])) dzdt: $(pp(args["loss_dzdt"])) par: $(pp(args["loss_par"])) NLRAN_in: $(pp(args["loss_NLRAN_in"])) NLRAN_out: $(pp(args["loss_NLRAN_out"])) Orientation: $(pp(args["loss_orient"])) Zero function: $(pp(args["loss_zero"]))")
-            println("  Relative train loss: $(pp(args["rel_loss_total"])) AE:  $(pp(args["rel_loss_AE"])) dxdt: $(pp(args["rel_loss_dxdt"])) dzdt: $(pp(args["rel_loss_dzdt"])) par: $(pp(args["rel_loss_par"])) NLRAN_in: $(pp(args["rel_loss_NLRAN_in"])) NLRAN_out: $(pp(args["rel_loss_NLRAN_out"])) Orientation: $(pp(args["rel_loss_orient"])) Zero function: $(pp(args["rel_loss_zero"]))")
+            if args["IJulia"] != 1
+                println("  Train loss: $(pp(args["loss_total"])) AE:  $(pp(args["loss_AE"])) dxdt: $(pp(args["loss_dxdt"])) dzdt: $(pp(args["loss_dzdt"])) par: $(pp(args["loss_par"])) NLRAN_in: $(pp(args["loss_NLRAN_in"])) NLRAN_out: $(pp(args["loss_NLRAN_out"])) Orientation: $(pp(args["loss_orient"])) Zero function: $(pp(args["loss_zero"]))")
+                println("  Relative train loss: $(pp(args["rel_loss_total"])) AE:  $(pp(args["rel_loss_AE"])) dxdt: $(pp(args["rel_loss_dxdt"])) dzdt: $(pp(args["rel_loss_dzdt"])) par: $(pp(args["rel_loss_par"])) NLRAN_in: $(pp(args["rel_loss_NLRAN_in"])) NLRAN_out: $(pp(args["rel_loss_NLRAN_out"])) Orientation: $(pp(args["rel_loss_orient"])) Zero function: $(pp(args["rel_loss_zero"]))")
+            end
 
             # Deploy plotting
             if args["Par_widths"][end] - args["Par_widths"][1] == 0
-                plotter(plot_,test_loss,loss,ctr,NN["encoder"],NN["par_encoder"],tscale=cpu(NN["tscale"]))
+                plotter(plot_,test_loss,loss,ctr,NN["encoder"],NN["par_encoder"],NN["trans_encoder"],tscale=cpu(NN["tscale"]))
             else
-                plotter(plot_,test_loss,loss,ctr,NN["encoder"],NN["par_encoder"],tscale=0)
+                plotter(plot_,test_loss,loss,ctr,NN["encoder"],NN["par_encoder"],NN["trans_encoder"],tscale=0)
             end
             l=0
             if args["nPlots"] == 0
@@ -207,7 +214,13 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
                 else
                     l = @layout [grid(1,1); grid(1,1); grid(1,1); grid(1,1) grid(1,1) grid(1,1)]
                 end
-                display(plot(plot_...,layout=l))
+                if args["IJulia"] == 1
+                    IJulia.clear_output(true) # prevents flickering
+                    plot(plot_...,layout=l) |> IJulia.display
+                    sleep(0.0001)
+                else
+                    display(plot(plot_...,layout=l))
+                end
                 ctr = ctr+1
             end
 
@@ -215,7 +228,10 @@ function train(args::Dict,train_data::Dict, test_data,NN::Dict,trained_NN::Tuple
         end       
     i = i+1    
     end
-
+    println("  Train loss: $(pp(args["loss_total"])) AE:  $(pp(args["loss_AE"])) dxdt: $(pp(args["loss_dxdt"])) dzdt: $(pp(args["loss_dzdt"])) par: $(pp(args["loss_par"])) NLRAN_in: $(pp(args["loss_NLRAN_in"])) NLRAN_out: $(pp(args["loss_NLRAN_out"])) Orientation: $(pp(args["loss_orient"])) Zero function: $(pp(args["loss_zero"]))")
+    println("  Relative train loss: $(pp(args["rel_loss_total"])) AE:  $(pp(args["rel_loss_AE"])) dxdt: $(pp(args["rel_loss_dxdt"])) dzdt: $(pp(args["rel_loss_dzdt"])) par: $(pp(args["rel_loss_par"])) NLRAN_in: $(pp(args["rel_loss_NLRAN_in"])) NLRAN_out: $(pp(args["rel_loss_NLRAN_out"])) Orientation: $(pp(args["rel_loss_orient"])) Zero function: $(pp(args["rel_loss_zero"]))")
+    println("  Test loss: $(pp(args["loss_total"])) AE:  $(pp(args["loss_AE"])) dxdt: $(pp(args["loss_dxdt"])) dzdt: $(pp(args["loss_dzdt"])) par: $(pp(args["loss_par"])) NLRAN_in: $(pp(args["loss_NLRAN_in"])) NLRAN_out: $(pp(args["loss_NLRAN_out"])) Orientation: $(pp(args["loss_orient"])) Zero function: $(pp(args["loss_zero"]))")
+    println("  Relative test loss: $(pp(args["rel_loss_total"])) AE:  $(pp(args["rel_loss_AE"])) dxdt: $(pp(args["rel_loss_dxdt"])) dzdt: $(pp(args["rel_loss_dzdt"])) par: $(pp(args["rel_loss_par"])) NLRAN_in: $(pp(args["rel_loss_NLRAN_in"])) NLRAN_out: $(pp(args["rel_loss_NLRAN_out"])) Orientation: $(pp(args["rel_loss_orient"])) Zero function: $(pp(args["rel_loss_zero"]))")
     return plot_,enssol
 end
 

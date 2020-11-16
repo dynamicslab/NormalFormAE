@@ -1,81 +1,79 @@
-args = Dict()
-args["ExpName"] = "nf"
-dir_ = "/home/manu/Documents/Work/NormalFormAE"
-args["DataDir"] = "/home/manu/Documents/Work/NormalFormAEData"
+using Pkg
+Pkg.activate("/home/manu/Documents/Work/NormalFormAE/.")
+using NormalFormAE, Flux, Zygote, Plots, DifferentialEquations
+include("/home/manu/Documents/Work/NormalFormAE/problems/nf.jl")
+include("/home/manu/Documents/Work/NormalFormAE/run/run_nf_old.jl")
 
-using FFTW, DifferentialEquations
+x_model_name = :nf
+z_model_name = :Hopf
+x_dim = 128
+par_dim = 1
+z_dim = 2
+tsize = 500
+tspan = [0.0,200.0]
+xVar = 0.1
+aVar = 0.5
+mean_ic_x = [0.0] 
+mean_ic_a = [0.0]
+x_rhs = dxdt_rhs
+x_solve = dxdt_solve
+machine = gpu
+ 
 
-# Dimension parameters
-args["par_dim"] = 1
-args["z_dim"] = 2
-args["x_dim"] = 128
+model_x = xModel(x_model_name, x_dim, par_dim, tsize,tspan,xVar,aVar,mean_ic_x,mean_ic_a,x_rhs,x_solve, args)
+model_z = NormalForm(:Hopf,z_dim ,par_dim, dzdt_rhs, dzdt_solve)
 
-# Neural field parameters
-Nx = args["x_dim"]/2
-S = 1
-period=12
-dx = period/Nx
-x = dx .* Array(-Nx/2:(Nx/2-1))
-sig = 1.2
-we = 1
-sige = 1
-wi = 0
-sigi = 1
-args["gain"] = 2.75
-args["theta"] = 0.375
-args["tau"] = 10.0
-args["beta"] = 6.0f0
-ww = we/sige/sqrt(pi) .* exp.(-(x ./ sige).^2) .- wi/sigi/sqrt(pi) .* exp.(-(x ./ sigi).^2)
-args["ft_conn"] = fft(fftshift(dx .* ww))
-I0 = 0.8040 # Bifurcation point
-args["II"] = I0*exp.(-(x./sig).^2)
-y0 = [0.2*args["II"]; 0.3*args["II"]]
+state = AE(:State, 128,2, [64,32,16],:elu,machine)
+par = AE(:Par, 1,1,[16,16],:elu,machine)
+trans = nothing
 
-args["bif_x"] = 0.0 # Set this to 0 to avoid translation in ground truth data
-args["bif_p"] = 0.0  # Set this to 0 to avoid translation in ground truth data
-prob  = ODEProblem(dxdt_rhs, y0, (0.0f0,100.0f0),(I0,))
-sol = solve(prob,Tsit5(),saveat=Array(0.0:0.05:100.0),reltol = 1e-8,dtmax = 0.1);
-args["bif_x"] = Array(sol)[:,end]; # Now set fixed translation (which is wrong)
-args["bif_p"] = 0.8040 # Fixed trnslation (wrong)
 
-# Data generation parameters
-args["mean_init"] = 0.01f0 .+ zeros(Float32,args["x_dim"])
-args["mean_a"] = [0.0]
-args["xVar"] = 0.1f0
-args["aVar"] = 0.5f0
-args["tspan"] = [0.0, 200]
-args["tsize"] = 500
+tscale_init = [1f0] |> machine
 
-# Neural net parameters
-args["AE_widths"] = [128,64,32,16,2]
-args["AE_acts"] = ["elu","elu","elu","id"]
-args["Par_widths"] = [1,16,16,1]
-args["Par_acts"] = ["elu","elu","id"]
-args["tscale_init"] = 1f0
+training_size = 1000
+test_size = 100
 
-# Dataset generation parameters
-args["training_size"] = 1000
-args["BatchSize"] = 100
-args["test_size"] = 20
 
-# Set arguments
-args["nEpochs"] = 100
-args["nIt"] = 1
-args["nIt_tscale"] = 1
-args["ADAMarg"] = 0.001
-args["P_AE_state"] = 1f0
-args["P_cons_x"] = 0.001f0
-args["P_cons_z"] = 0.001f0
-args["P_AE_par"] = 1f0
-args["P_sens_dtdzdb"] = 0.0f0
-args["P_sens_x"] = 0.0f0
-args["P_AE_id"] = 0.0f0
-args["P_NLRAN_in"] = 0
-args["P_NLRAN_out"] = 0
-args["P_orient"] = 1.0f0
-args["P_zero"] = 1.0f0
+data_dir = nothing
 
-# Plotting parameters
-args["nPlots"] = 10 # How many test data plots
-args["nEnsPlot"] = 5 # How many in gray ensemble
-args["varPlot"] = 0.1f0 # Variance of initial values
+P_reg = [1.0f0, 1.0f0, 1.0f0, 0.001f0, 0.001f0, 1.0f0, 1.0f0]
+
+
+nfae = NFAE(:nf, :Hopf, model_x, model_z, training_size, test_size, state, par, nothing, tscale_init,
+                       P_reg,machine, 10,20,0.1,data_dir)
+
+# ---------------------------------- Training-----------------------------------------------------------
+nfae.data_dir = "NormalFormAEData"
+save_posttrain(nfae)
+
+nEpochs = 1
+batchsize = 100
+ctr = 0
+p = gen_plot(nfae.model_z.z_dim, nfae.nPlots)
+
+# Load test data
+x_test = reduce(hcat,[nfae.test_data["x"][:,:,i] for i in 1:nfae.test_size]) |> nfae.machine
+dx_test = reduce(hcat,[nfae.test_data["dx"][:,:,i] for i in 1:nfae.test_size]) |> nfae.machine
+alpha_test = nfae.test_data["alpha"] |> nfae.machine
+
+# Train!
+for i in 1:nEpochs
+    for j in 1:div(training_size, batchsize)
+        global ctr
+        x_, dx_, alpha_ = makebatch(nfae.training_data, batchsize,j) |> nfae.machine # batcher
+        ps = Flux.params(nfae.state.encoder, nfae.state.decoder,
+                         nfae.par.encoder, nfae.par.decoder) # defines NNs to be trained
+        res, back = Flux.pullback(ps) do
+            nfae(x_,dx_,alpha_)
+        end # Performs autodiff step
+        Flux.Optimise.update!(ADAM(0.001),ps,back(1f0)) # Updates training parameters
+        loss_train = res
+        loss_test = nfae(x_test,dx_test,alpha_test)
+        println("Epoch: ",i, " Batch: ",j, " Train loss: ", loss_train, " Test loss: ", loss_test)
+        plotter(nfae,ctr,p,cpu(x_test),cpu(alpha_test),loss_train,loss_test)
+        ctr = ctr + 1
+    end
+    save_posttrain(nfae)
+end
+
+
