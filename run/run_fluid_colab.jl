@@ -5,7 +5,7 @@ Pkg.instantiate()
 # ENV["JULIA_CUDA_VERBOSE"] = true
 # ENV["JULIA_CUDA_MEMORY_POOL"] = "split" # Efficient allocation to GPU (Julia garbage collection is inefficient for this code apparently)
 # ENV["JULIA_CUDA_MEMORY_LIMIT"] = 8000_000_000
-using NormalFormAE, Flux, Zygote, Plots, DifferentialEquations
+using NormalFormAE, Flux, Zygote, Plots, DifferentialEquations, IJulia
 include(joinpath(path,"problems/nf.jl"))
 include(joinpath(path,"run/run_nf_old.jl"))
 
@@ -85,10 +85,10 @@ for i in 1:nEpochs
         dx_ = reduce(hcat,[nfae.test_data["dx"][:,:,i] for i in 1:nfae.test_size]) |> nfae.machine
         alpha_ = reduce(hcat,[nfae.test_data["alpha"][:,i] for i in 1:nfae.test_size]) |> nfae.machine
         loss_test = nfae(x_,dx_,alpha_)
-        println("Epoch: ",i, " Batch: ",j, " Train loss: ", loss_train, " Test loss: ", loss_test)
         plotter(nfae,ctr,p,cpu(x_),cpu(alpha_),loss_train,loss_test)
         ctr = ctr + 1
     end
+    println("Epoch: ",i, " Batch: ",j, " Train loss: ", loss_train, " Test loss: ", loss_test)
     save_posttrain(nfae)
 end
         
