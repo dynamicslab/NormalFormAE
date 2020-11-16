@@ -23,6 +23,7 @@ mutable struct NFAE{x_name, z_name}
     nPlots :: Int64
     nEnsPlot :: Int64
     varPlot :: Float64
+    ijulia :: Bool
     # Plotting
     #live_plotter :: Plotter
     #nplots :: Int64 # How many plots from test data
@@ -34,7 +35,7 @@ function NFAE(x_name, z_name, model_x, model_z,train_size, test_size,
               State :: AE{:State}, Par :: AE{:Par}, Trans,
               tscale_init,
               reg, machine,
-              nPlots, nEnsPlot, varPlot, data_dir)
+              nPlots, nEnsPlot, varPlot, data_dir; ijulia = false)
     # To get: training_data, test_data,NNs, loss function, plotter
     # data
     if data_dir == nothing
@@ -69,7 +70,7 @@ function NFAE(x_name, z_name, model_x, model_z,train_size, test_size,
                         State, Par, Trans,
                         p_ae_state,p_ae_par, p_ae_trans, p_cons_x, p_cons_z, p_zero, p_orient,nothing,
                         tscale_init,machine,
-                        nPlots, nEnsPlot, varPlot)
+                        nPlots, nEnsPlot, varPlot, ijulia)
 end
 
 function Base.show(io::IO, nfae :: NFAE{x_name, z_name}) where {x_name, z_name}

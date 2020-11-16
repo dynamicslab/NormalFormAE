@@ -118,14 +118,12 @@ function plotter(nfae::NFAE,ctr,p,x_,alpha_,train_loss,test_loss)
         else
             l = @layout [grid(1,1); grid(1,1); grid(1,1); grid(1,1) grid(1,1) grid(1,1)]
         end
-        # if args["IJulia"] == 1
-        #     IJulia.clear_output(true) # prevents flickering
-        #     plot(plot_...,layout=l) |> IJulia.display
-        #     sleep(0.0001)
-        # else
-        #     display(plot(plot_...,layout=l))
-        # end
-        # ctr =
-        display(plot(p...,layout=l))
+        if nfae.IJulia
+            IJulia.clear_output(true) # prevents flickering
+            plot(plot_...,layout=l) |> IJulia.display
+            sleep(0.0001)
+        else
+            display(plot(plot_...,layout=l))
+        end
     end
 end

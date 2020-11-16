@@ -49,7 +49,7 @@ data_dir = "content/drive/My Drive/Work/NormalFormAEData"
 P_reg = [1.0f0, 1.0f0, 1.0f0, 0.001f0, 0.001f0, 1.0f0, 1.0f0]
 
 nfae = NFAE(:fluid, :Hopf, model_x, model_z, training_size, test_size, state, par, trans, tscale_init,
-            P_reg,machine, 10,20,0.1,data_dir)
+            P_reg,machine, 10,20,0.1,data_dir,ijulia=true)
 
 load_posttrain(nfae)
 
