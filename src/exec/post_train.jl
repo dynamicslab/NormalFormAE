@@ -75,16 +75,14 @@ function load_posttrain(nfae::NFAE)
     catch e
         println("tscale wasn't saved")
     end
-    training_data = FileIO.load("$(path_)/training_data.jld2","training_data")
-    test_data = FileIO.load("$(path_)/test_data.jld2","test_data")
-    for (key,_) in training_data
-        training_data[key] = nfae.machine(training_data[key])
+    nfae.training_data = FileIO.load("$(path_)/training_data.jld2","training_data")
+    nfae.test_data = FileIO.load("$(path_)/test_data.jld2","test_data")
+    for (key,_) in nfae.training_data
+        nfae.training_data[key] = nfae.machine(training_data[key])
     end
-    for (key,_) in test_data
-        test_data[key] = nfae.machine(test_data[key])
+    for (key,_) in nfae.test_data
+        nfae.test_data[key] = nfae.machine(test_data[key])
     end
-    nfae.training_data = training_data
-    nfae.test_data = test_data
     nothing
 end
 
