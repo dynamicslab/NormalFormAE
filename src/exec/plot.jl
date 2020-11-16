@@ -120,10 +120,10 @@ function plotter(nfae::NFAE,ctr,p,x_,alpha_,train_loss,test_loss)
         end
         if nfae.ijulia
             IJulia.clear_output(true) # prevents flickering
-            plot(plot_...,layout=l) |> IJulia.display
+            plot(p...,layout=l) |> IJulia.display
             sleep(0.0001)
         else
-            display(plot(plot_...,layout=l))
+            display(plot(p...,layout=l))
         end
     end
 end

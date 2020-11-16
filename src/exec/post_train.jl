@@ -19,13 +19,11 @@ function save_posttrain(nfae::NFAE)
     end
     path_data = joinpath(path_,"..",dir_,exp_)
 
-    training_data = nfae.training_data
-    test_data = nfae.test_data
-    for (key,item) in training_data
-        training_data[key] = cpu(training_data[key])
+    for (key,item) in nfae.training_data
+        nfae.training_data[key] = cpu(nfae.training_data[key])
     end
-    for (key,item) in test_data
-        test_data[key] = cpu(test_data[key])
+    for (key,item) in nfae.test_data
+        nfae.test_data[key] = cpu(nfae.test_data[key])
     end
     
     BSON.@save "$(path_data)/encoder.bson" weights_encoder
@@ -36,8 +34,8 @@ function save_posttrain(nfae::NFAE)
         BSON.@save "$(path_data)/trans_encoder.bson" weights_trans_encoder
         BSON.@save "$(path_data)/trans_decoder.bson" weights_trans_decoder
     end
-    FileIO.save("$(path_data)/training_data.jld2","training_data",training_data)
-    FileIO.save("$(path_data)/test_data.jld2","test_data",test_data)
+    FileIO.save("$(path_data)/training_data.jld2","training_data",nfae.training_data)
+    FileIO.save("$(path_data)/test_data.jld2","test_data",nfae.test_data)
     FileIO.save("$(path_data)/tscale.jld2","tscale",tscale)
 end
 
