@@ -44,7 +44,7 @@ tscale_init = [0.01f0] |> machine
 training_size = 230
 test_size = 20
 
-data_dir = "content/drive/My\ Drive/Work/NormalFormAEData"
+data_dir = "content/drive/My Drive/Work/NormalFormAEData"
 
 P_reg = [1.0f0, 1.0f0, 1.0f0, 0.001f0, 0.001f0, 1.0f0, 1.0f0]
 
