@@ -118,7 +118,7 @@ function plotter(nfae::NFAE,ctr,p,x_,alpha_,train_loss,test_loss)
         else
             l = @layout [grid(1,1); grid(1,1); grid(1,1); grid(1,1) grid(1,1) grid(1,1)]
         end
-        if nfae.IJulia
+        if nfae.ijulia
             IJulia.clear_output(true) # prevents flickering
             plot(plot_...,layout=l) |> IJulia.display
             sleep(0.0001)
