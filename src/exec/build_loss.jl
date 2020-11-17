@@ -36,7 +36,6 @@ function (nfae::NFAE{xname,zname})(in_, dx_, par_) where {xname,zname}
         loss_AE_trans = nfae.p_ae_trans*Flux.mse(par_enc,dec_trans)
     else
         loss_zero = nfae.p_zero*sum(abs2,1/nfae.model_x.x_dim .* sum(state_enc, dims=2))
-        loss_zero = 0.0f0
         loss_AE_trans = 0.0f0
     end
     loss_orient = nfae.p_orient*Flux.mae(sign.(par_enc[1:p_,:]), sign.(par_))
