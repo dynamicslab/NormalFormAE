@@ -25,28 +25,42 @@ model_z = NormalForm(:Hopf,z_dim ,par_dim, dzdt_rhs, dzdt_solve)
 
 state = AE(:State, 128,2, [64,32,16],:elu,machine)
 par = AE(:Par, 1,1,[16,16],:elu,machine)
-trans = nothing
+trans = AE(:Trans,1,2,[16,16],:elu, machine)
 
 
 tscale_init = [1f0] |> machine
 
 training_size = 1000
-test_size = 100
+test_size = 20
 
 
-data_dir = nothing
+# data_dir = nothing
 
 P_reg = [1.0f0, 1.0f0, 1.0f0, 0.001f0, 0.001f0, 1.0f0, 1.0f0]
 
+data_dir = nothing
 
 nfae = NFAE(:nf, :Hopf, model_x, model_z, training_size, test_size, state, par, nothing, tscale_init,
                        P_reg,machine, 10,20,0.1,data_dir)
 
 # ---------------------------------- Training-----------------------------------------------------------
-nfae.data_dir = "NormalFormAEData"
+nfae.data_dir = "NormalFormAEData_old"
+
+# load_posttrain(nfae)
+
+while sum(sign.(cpu(nfae.par.encoder)(nfae.test_data["alpha"])) .- sign.(nfae.test_data["alpha"])) > 2.0
+  #state = AE(:State, x_dim,z_dim, [400,50,16],:elu,machine)
+  par = AE(:Par, 1,1,[16,16],:elu,machine)
+  # trans = AE(:Trans,1,2,[16,16],:elu,machine)
+  #nfae.state = state
+  nfae.par = par
+  # nfae.trans = trans
+  nfae.tscale = [0.01f0] |> machine
+end
+
 save_posttrain(nfae)
 
-nEpochs = 1
+nEpochs = 200
 batchsize = 100
 ctr = 0
 p = gen_plot(nfae.model_z.z_dim, nfae.nPlots)
@@ -55,6 +69,11 @@ p = gen_plot(nfae.model_z.z_dim, nfae.nPlots)
 x_test = reduce(hcat,[nfae.test_data["x"][:,:,i] for i in 1:nfae.test_size]) |> nfae.machine
 dx_test = reduce(hcat,[nfae.test_data["dx"][:,:,i] for i in 1:nfae.test_size]) |> nfae.machine
 alpha_test = nfae.test_data["alpha"] |> nfae.machine
+# x_test = nfae.test_data["x"] |> nfae.machine
+# dx_test = nfae.test_data["dx"] |> nfae.machine
+# alpha_test = nfae.test_data["alpha"] |> nfae.machine
+
+# nfae.training_data["dx"] = nfae.training_data["dxdt"];
 
 # Train!
 for i in 1:nEpochs
@@ -62,7 +81,8 @@ for i in 1:nEpochs
         global ctr
         x_, dx_, alpha_ = makebatch(nfae.training_data, batchsize,j) |> nfae.machine # batcher
         ps = Flux.params(nfae.state.encoder, nfae.state.decoder,
-                         nfae.par.encoder, nfae.par.decoder) # defines NNs to be trained
+                         nfae.par.encoder, nfae.par.decoder,
+                         nfae.tscale) # defines NNs to be trained
         res, back = Flux.pullback(ps) do
             nfae(x_,dx_,alpha_)
         end # Performs autodiff step

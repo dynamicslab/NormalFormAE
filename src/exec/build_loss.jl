@@ -28,15 +28,15 @@ function (nfae::NFAE{xname,zname})(in_, dx_, par_) where {xname,zname}
     loss_dzdt = nfae.p_cons_z*Flux.mse(dz_, dz2_)
     loss_AE_par = nfae.p_ae_par*Flux.mse(par_dec,par_)
     loss_AE_trans = 0.0f0
-    loss_zer = 0.0f0
-    if nfae.trans !=  nothing        
+    loss_zero = 0.0f0
+    if nfae.trans !=  nothing
         loss_zero = nfae.p_zero*1/nfae.model_x.x_dim*sum(
             abs,nfae.model_z.rhs(nfae.trans.encoder(par_enc[1:p_,:]),par_enc))
         dec_trans = nfae.trans.decoder(nfae.trans.encoder(par_enc[1:p_,:]))
         loss_AE_trans = nfae.p_ae_trans*Flux.mse(par_enc,dec_trans)
     else
-        loss_zero = nfae.p_zero*1/nfae.model_x.x_dim*sum(abs,
-                    nfae.state.encoder(nfae.machine(zeros(Float32,nfae.model_x.x_dim,1))))
+        loss_zero = nfae.p_zero*sum(abs2,1/nfae.model_x.x_dim .* sum(state_enc, dims=2))
+        loss_zero = 0.0f0
         loss_AE_trans = 0.0f0
     end
     loss_orient = nfae.p_orient*Flux.mae(sign.(par_enc[1:p_,:]), sign.(par_))

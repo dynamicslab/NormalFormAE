@@ -18,7 +18,7 @@ mutable struct NFAE{x_name, z_name}
     p_zero :: Float32
     p_orient :: Float32
     loss :: Any
-    tscale :: Array
+    tscale :: Any
     machine :: Any # Flux.gpu/Flux.cpu
     nPlots :: Int64
     nEnsPlot :: Int64
