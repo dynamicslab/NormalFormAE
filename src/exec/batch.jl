@@ -9,3 +9,10 @@ function makebatch(data::Dict,batchsize, batchnum)
     alpha = reduce(hcat,[data["alpha"][:,i] for i in ind])
     return x, dx, alpha
 end
+
+function makebatch(file::String, shuffle_ind, batchsize, batchnum)
+    ind = shuffle_ind[((batchnum-1)*bsize + 1):batchnum*batchsize]
+    x = reduce(hcat,[FileIO.load(file,"x_$(i)") for i in ind])
+    alpha = FileIO.load(file,"alpha")
+    return x, alpha[:,ind]
+end

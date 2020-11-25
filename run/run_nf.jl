@@ -36,27 +36,29 @@ test_size = 20
 
 # data_dir = nothing
 
-P_reg = [1.0f0, 1.0f0, 1.0f0, 0.001f0, 0.001f0, 1.0f0, 1.0f0]
+P_reg = [1.0f0, 1.0f0, 1.0f0, 0.001f0, 0.001f0, 0.001f0, 1.0f0]
 
-data_dir = nothing
+data_dir =  "NormalFormAEData_old"
 
 nfae = NFAE(:nf, :Hopf, model_x, model_z, training_size, test_size, state, par, nothing, tscale_init,
                        P_reg,machine, 10,20,0.1,data_dir)
 
 # ---------------------------------- Training-----------------------------------------------------------
-nfae.data_dir = "NormalFormAEData_old"
+load_posttrain(nfae)
 
-# load_posttrain(nfae)
+nfae.par =  AE(:Par, 1,1,[16,16],:elu,machine)
 
 while sum(sign.(cpu(nfae.par.encoder)(nfae.test_data["alpha"])) .- sign.(nfae.test_data["alpha"])) > 2.0
-  #state = AE(:State, x_dim,z_dim, [400,50,16],:elu,machine)
-  par = AE(:Par, 1,1,[16,16],:elu,machine)
-  # trans = AE(:Trans,1,2,[16,16],:elu,machine)
-  #nfae.state = state
-  nfae.par = par
-  # nfae.trans = trans
-  nfae.tscale = [0.01f0] |> machine
+    state_new = AE(:State, x_dim,z_dim, [64,32,16],:elu,machine)
+    par_new = AE(:Par, 1,1,[16,16],:elu,machine)
+    # trans = AE(:Trans,1,2,[16,16],:elu,machine)
+    nfae.state = state_new
+    nfae.par = par_new
+    # nfae.trans = trans
+    nfae.tscale = [0.01f0] |> machine
+    println("changed")
 end
+nfae.tscale = [1f0] |> machine
 
 save_posttrain(nfae)
 
@@ -81,8 +83,7 @@ for i in 1:nEpochs
         global ctr
         x_, dx_, alpha_ = makebatch(nfae.training_data, batchsize,j) |> nfae.machine # batcher
         ps = Flux.params(nfae.state.encoder, nfae.state.decoder,
-                         nfae.par.encoder, nfae.par.decoder,
-                         nfae.tscale) # defines NNs to be trained
+                         nfae.par.encoder, nfae.par.decoder) # defines NNs to be trained
         res, back = Flux.pullback(ps) do
             nfae(x_,dx_,alpha_)
         end # Performs autodiff step
