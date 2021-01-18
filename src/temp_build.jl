@@ -1,4 +1,4 @@
-function (nfae::NFAE{xname,zname})(in_, dx_, par_) where {xname,zname}
+function temp_loss(nfae, in_, dx_, par_)
     
     bsize = div(size(in_)[end], nfae.model_x.tsize)
     tdim = nfae.model_x.tsize
@@ -6,6 +6,7 @@ function (nfae::NFAE{xname,zname})(in_, dx_, par_) where {xname,zname}
     p_ = nfae.model_z.par_dim
     
     state_enc = nfae.state.encoder(in_)
+    in_ = in_ .- nfae.state.decoder(state_enc)
 
     par_enc = nfae.par.encoder(par_)
     id_ = repeat(Matrix{Float32}(I,bsize,bsize),inner=(1,nfae.model_x.tsize)) |> nfae.machine
@@ -13,7 +14,7 @@ function (nfae::NFAE{xname,zname})(in_, dx_, par_) where {xname,zname}
         state_enc = state_enc .+ nfae.trans.encoder(par_enc*id_)
     end
     par_dec = nfae.par.decoder(par_enc)
-    state_dec = nfae.state.decoder(state_enc)
+    # state_dec = nfae.state.decoder(state_enc)
 
     # Consistency losses
     dz_ = dt_NN(nfae.state.encoder,in_,dx_,nfae.state.act)
@@ -21,10 +22,10 @@ function (nfae::NFAE{xname,zname})(in_, dx_, par_) where {xname,zname}
         par_enc = reduce(hcat,[[par_enc[:,i]; nfae.tscale] for i in 1:bsize])
     end
     dz2_ = nfae.model_z.rhs(state_enc, par_enc*id_)
-    dx2_ = dt_NN(nfae.state.decoder,state_enc,dz2_,nfae.state.act)
+    dx_ = dx_ .- dt_NN(nfae.state.decoder,state_enc,dz2_,nfae.state.act)
 
-    loss_AE_state = nfae.p_ae_state*Flux.mse(in_,state_dec)
-    loss_dxdt = nfae.p_cons_x*Flux.mse(dx_, dx2_)
+    loss_AE_state = nfae.p_ae_state*Flux.mse(in_,0.0)
+    loss_dxdt = nfae.p_cons_x*Flux.mse(dx_, 0.0)
     loss_dzdt = nfae.p_cons_z*Flux.mse(dz_, dz2_)
     loss_AE_par = nfae.p_ae_par*Flux.mse(par_dec,par_)
     loss_AE_trans = 0.0f0

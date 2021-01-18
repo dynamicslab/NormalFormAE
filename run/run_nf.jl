@@ -78,23 +78,23 @@ alpha_test = nfae.test_data["alpha"] |> nfae.machine
 # nfae.training_data["dx"] = nfae.training_data["dxdt"];
 
 # Train!
-for i in 1:nEpochs
-    for j in 1:div(training_size, batchsize)
-        global ctr
-        x_, dx_, alpha_ = makebatch(nfae.training_data, batchsize,j) |> nfae.machine # batcher
-        ps = Flux.params(nfae.state.encoder, nfae.state.decoder,
-                         nfae.par.encoder, nfae.par.decoder) # defines NNs to be trained
-        res, back = Flux.pullback(ps) do
-            nfae(x_,dx_,alpha_)
-        end # Performs autodiff step
-        Flux.Optimise.update!(ADAM(0.001),ps,back(1f0)) # Updates training parameters
-        loss_train = res
-        loss_test = nfae(x_test,dx_test,alpha_test)
-        println("Epoch: ",i, " Batch: ",j, " Train loss: ", loss_train, " Test loss: ", loss_test)
-        plotter(nfae,ctr,p,cpu(x_test),cpu(alpha_test),loss_train,loss_test)
-        ctr = ctr + 1
-    end
-    save_posttrain(nfae)
-end
+# for i in 1:nEpochs
+#     for j in 1:div(training_size, batchsize)
+#         global ctr
+#         x_, dx_, alpha_ = makebatch(nfae.training_data, batchsize,j) |> nfae.machine # batcher
+#         ps = Flux.params(nfae.state.encoder, nfae.state.decoder,
+#                          nfae.par.encoder, nfae.par.decoder) # defines NNs to be trained
+#         res, back = Flux.pullback(ps) do
+#             nfae(x_,dx_,alpha_)
+#         end # Performs autodiff step
+#         Flux.Optimise.update!(ADAM(0.001),ps,back(1f0)) # Updates training parameters
+#         loss_train = res
+#         loss_test = nfae(x_test,dx_test,alpha_test)
+#         println("Epoch: ",i, " Batch: ",j, " Train loss: ", loss_train, " Test loss: ", loss_test)
+#         plotter(nfae,ctr,p,cpu(x_test),cpu(alpha_test),loss_train,loss_test)
+#         ctr = ctr + 1
+#     end
+#     save_posttrain(nfae)
+# end
 
 
