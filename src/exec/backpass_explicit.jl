@@ -57,14 +57,26 @@ function dt_NN(NN, input_, left_dt, act)
     # Given input, left_dt and neural net NN, compute right hand side time-derivative via chain rule
     # As per Champion et al. (PNAS 2019)
     # Neural Net is of the form Chain(Dense(_,_,act),...,Dense(_,_))
-    W_,b_ = Flux.params(NN.layers[1])
+      
+    # Handle dropout layers
+    start_ind = 1
+    if isempty(Flux.params(NN.layers[1])) # it's a dropout
+       start_ind = 2
+    end   
+    W_,b_ = Flux.params(NN.layers[start_ind])
     l = W_*input_.+b_
     dl = W_*left_dt
-    nlayers = div(length(Flux.params(NN)),2)
-    for i=2:nlayers
-        W_,b_ = Flux.params(NN.layers[i])
-        dl = W_*(act_der(act,l).*dl)
-        l = W_*act_fun(act,l) .+ b_
+    nlayers = length(NN.layers) # 2x number of layers, to handle dropouts
+    for i=(start_ind+1):nlayers
+        if !isempty(Flux.params(NN.layers[i]))
+            W_,b_ = Flux.params(NN.layers[i])
+            if act != "id"
+        	dl = W_*(act_der(act,l).*dl)
+            else
+                dl = W_*dl
+            end
+            l = W_*act_fun(act,l) .+ b_
+        end
     end     
     return dl
 end

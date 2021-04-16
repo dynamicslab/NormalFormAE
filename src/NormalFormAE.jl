@@ -12,9 +12,9 @@ include("exec/build_loss.jl")
 include("exec/plot.jl")
 include("exec/post_train.jl")
 include("exec/batch.jl")
-
 export AE, xModel, NormalForm, NFAE
-export gen_plot, plotter, save_posttrain, load_posttrain
+export gen_plot, plotter, load_data, load_params, save_data, save_params 
 export makebatch
+export dt_NN
 
 end

@@ -43,13 +43,14 @@ function enssol(z_dim, tsize, nPlots, varPlot, dzdt_solve, xdata, tspan, nplot,p
     end
     return lower_, upper_, sol_
 end
-function plotter(nfae::NFAE,ctr,p,x_,alpha_,train_loss,test_loss)
+function plotter(nfae::NFAE,ctr,p,z_test,alpha_,train_loss,test_loss)
+    # 26/02: x changed to z_test
     # x, alpha should be cpu
     ind_z = 1:nfae.model_z.z_dim
     if nfae.nPlots != 0
         id_ = repeat(Matrix{Float32}(I,nfae.test_size,nfae.test_size),inner=(1,nfae.model_x.tsize))
         beta_ = cpu(nfae.par.encoder)(alpha_)
-        z_test = cpu(nfae.state.encoder)(x_)
+        # z_test = cpu(nfae.state.encoder)(x_)
         if nfae.trans != nothing
             z_test = z_test .+ cpu(nfae.trans.encoder)(beta_*id_)
         end
@@ -104,8 +105,8 @@ function plotter(nfae::NFAE,ctr,p,x_,alpha_,train_loss,test_loss)
     i = i+1
     alpha_sort = sort(cpu(alpha_),dims=2)
     beta_sort = cpu(nfae.par.encoder)(alpha_sort)
-    p[i] = scatter(beta_sort[1:nfae.model_z.par_dim,:]',markershape=:rect,markersize=4,label="Enc",title="Parameter(s)",titlefont=font(10))
-    scatter!(alpha_sort[1:nfae.model_x.par_dim,:]',markershape=:utriangle,markersize=4,markeralpha=0.5,label="GT",legend=:bottomright,legendfontsize=5)
+    p[i] = Plots.scatter(beta_sort[1:nfae.model_z.par_dim,:]',markershape=:rect,markersize=4,label="Enc",title="Parameter(s)",titlefont=font(10))
+    Plots.scatter!(alpha_sort[1:nfae.model_x.par_dim,:]',markershape=:utriangle,markersize=4,markeralpha=0.5,label="GT",legend=:bottomright,legendfontsize=5)
 
     l=0
     if nfae.nPlots == 0
@@ -122,8 +123,9 @@ function plotter(nfae::NFAE,ctr,p,x_,alpha_,train_loss,test_loss)
             IJulia.clear_output(true) # prevents flickering
             plot(p...,layout=l) |> IJulia.display
             sleep(0.0001)
-        else
-            display(plot(p...,layout=l))
+        #else
+            #display(plot(p...,layout=l))
         end
-    end
+    end    
+return plot(p...,layout=l)    
 end

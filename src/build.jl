@@ -47,10 +47,11 @@ function NFAE(x_name, z_name, model_x, model_z,train_size, test_size,
         test_data["x"], test_data["dx"], test_data["alpha"] = model_x.gen(test_size) 
         # reg
         tscale = tscale_init |> machine
+        println("Data and params unsaved, run save_data, save_params")
     else
         training_data = nothing
         test_data  = nothing
-        println("Run load_posttrain(nfae)!")
+        println("Load datasets and parameters with load_data, load_params")
     end
     exp_name = join([String(x_name),String(z_name)],"-")
     p_ae_state = reg[1]
