@@ -8,7 +8,7 @@ function train(nfae,nEpochs, batchsize,x_test,dx_test,alpha_test)
             x_, dx_, alpha_ = makebatch(nfae.training_data, batchsize,j) |> nfae.machine # batcher
             println(size(x_))
             ps = Flux.params(nfae.state.encoder, nfae.state.decoder,
-                            nfae.par.encoder, nfae.par.decoder) # defines NNs to be trained
+                            nfae.par.encoder, nfae.par.decoder,nfae.tscale) # defines NNs to be trained
             res, back = Flux.pullback(ps) do
                 nfae(x_,dx_,alpha_) 
             end # Performs autodiff step
@@ -21,8 +21,13 @@ function train(nfae,nEpochs, batchsize,x_test,dx_test,alpha_test)
             @printf "Epoch: %i, Batch: %i, eta: %0.1e, lowest rel loss: %0.3e \n" i j adamarg rel_loss_test  
             @printf "Train loss: %0.3e, %0.3e, %0.3e, %0.3e, %0.3e %0.3e \n" loss_train_full[ctr]... 
             @printf "Test loss: %0.3e, %0.3e, %0.3e, %0.3e, %0.3e %0.3e \n" loss_test_full[ctr]... 
-            plotter(nfae,ctr,p,cpu(z_),cpu(alpha_test),loss_train,loss_test)
-            savefig("NeuralFieldTrain.pdf")
+            try
+                #plotter(nfae,ctr,p,cpu(z_),cpu(alpha_test),loss_train,loss_test)
+                #savefig("NeuralFieldTrain.pdf")
+            catch e
+            end
+            pars_off = (sum(abs.(sign.(nfae.par.encoder(alpha_test)) .- sign.(alpha_test))))/2
+            println("Pars off: $(pars_off)")
             ctr = ctr + 1
             try
                 files_ = readdir("/tmp/")
@@ -35,9 +40,9 @@ function train(nfae,nEpochs, batchsize,x_test,dx_test,alpha_test)
             end
         end
         pars_off = (sum(abs.(sign.(nfae.par.encoder(alpha_test)) .- sign.(alpha_test))))/2
-        if pars_off > 5.0f0
+        if pars_off > 5.0f0 # <5 only for transcritical
             flag = 1
-            break
+            #break
         end
         #if loss_test < last_loss && rel_loss(nfae,x_test) < rel_loss_test
         #    save_params(nfae)

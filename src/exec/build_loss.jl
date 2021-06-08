@@ -23,6 +23,7 @@ function (nfae::NFAE{xname,zname})(in_, dx_, par_) where {xname,zname}
     loss_dzdt = nfae.p_cons_z*Flux.mse(dz_, dz2_)
     loss_AE_par = nfae.p_ae_par*Flux.mse(par_dec,par_)
     loss_zero = nfae.p_zero*(1/bsize)*sum(abs2,(1/nfae.model_x.x_dim) .* sum(state_enc, dims=2))
+    # loss_zero = nfae.p_zero*Flux.mse(nfae.state.encoder(0.0f0 .* in_),0.0f0 .* in_)
     loss_orient = nfae.p_orient*Flux.mse(sign.(par_enc[1:p_,:]), sign.(par_))
     nfae.loss = [loss_AE_state, loss_dxdt, loss_dzdt, loss_AE_par,  loss_orient, loss_zero]
     return loss_AE_state + loss_dxdt + loss_dzdt + loss_AE_par  + loss_orient + loss_zero

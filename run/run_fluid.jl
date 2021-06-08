@@ -1,3 +1,4 @@
+ENV["GKSwstype"] = "nul"
 using Pkg
 Pkg.activate("/home/kaliam/NormalFormAE/.")
 using CUDA
@@ -59,7 +60,15 @@ nfae.model_x.x_dim = 4
 #----- Load test and training data ------
 shuffle_ind = shuffle(1:239)
 test_ind = sort(shuffle_ind[end-18:end])
+# test_ind = [12,14,20,23,28,29,41,58,65,59,96,122,132,179,190,193,198,200,211]
 train_ind = shuffle_ind[1:220]
+
+
+
+train_ind = FileIO.load("/home/kaliam/NFAEdata/fluid-Hopf/train_ind.jld2","train_ind")
+test_ind = FileIO.load("/home/kaliam/NFAEdata/fluid-Hopf/test_ind.jld2","test_ind")
+
+# Load
 
 fluid_data = FileIO.load("/home/kaliam/NFAEdata/fluid-Hopf/fluid_data.jld2","fluid_data")
 drop = [[1.0f0 0.0f0 1.0f0 0.0f0];[0.0f0 1.0f0 0.0f0 1.0f0]] 
@@ -77,18 +86,6 @@ for i in ["x", "dx","alpha"]
     end
 end
 
-#for i in ["x", "dx"]
-#    temp = zeros(Float32,2,293,220)
-#    for j in 1:220
-#        temp[:,:,j] = drop*nfae.training_data[i][:,:,j] 
-#    end
-#    nfae.training_data[i] = temp
-#    temp = zeros(Float32,2,293,19)
-#    for k in 1:19
-#        temp[:,:,k] = drop*nfae.test_data[i][:,:,k]
-#    end
-#    nfae.test_data[i] = temp
-#end
 
 x_test = cat([nfae.test_data["x"][:,:,i] for i in 1:19]...,dims=2) |> nfae.machine
 dx_test = cat([nfae.test_data["dx"][:,:,i] for i in 1:19]...,dims=2) |> nfae.machine
@@ -98,26 +95,26 @@ nfae.model_x.x_dim = 4
 drop = rand(4,4)
 s = svd(drop)
 drop = s.U*s.Vt |> nfae.machine
-
 lift_mat = inv(cpu(drop))
 lift(x) = x
 
-# lift = Chain(Dense(2,5,elu),Dense(5,5,elu),Dense(5,5,elu),Dense(5,4)) |> nfae.machine 
+drop = FileIO.load("/home/kaliam/NFAEdata/fluid-Hopf/drop.jld2","drop") |> nfae.machine
+lift_mat = inv(cpu(drop))
+
 
 # --------- Manually set up neural networks --------
 nfae.par = AE(:Par, 1,1,[10,10],:tanh,machine)
-nfae.state = AE(:State, nfae.model_x.x_dim,nfae.model_z.z_dim,[20,20],:tanh,machine)
-#lift = rand(Float32, nfae.model_x.x_dim,nfae.model_z.z_dim) |> nfae.machine
-#drop = rand(Float32,nfae.model_z.z_dim,nfae.model_x.x_dim) |> nfae.machine
-#lift_func(x) = lift*x
-#drop_func(x) = drop*x
+nfae.state = AE(:State, nfae.model_x.x_dim,nfae.model_z.z_dim,[20,20,20],:tanh,machine) # before [20,20]
+
+load_params(nfae)
+
 #------------- Training ---------
 
-nEpochs = 500
+nEpochs =0
 batchsize = 110
 ctr = 1
 p = gen_plot(nfae.model_z.z_dim, nfae.nPlots)
-adamarg = 0.0001
+adamarg = 0.001
 opt = ADAM(adamarg)
 
 # Helpers, should go into nfae at some point
@@ -135,13 +132,36 @@ if nfae.state.act == "id"
 else
     act_ = Symbol(nfae.state.act)
 end
-while ctr < nEpochs*(training_size/batchsize) 
-   global adamarg
-   ctr = 1 
-   nfae.par = AE(:Par, nfae.par.in_dim,nfae.par.out_dim,nfae.par.widths,act_,nfae.machine)
-   nfae.state = AE(:State, nfae.state.in_dim,nfae.state.out_dim,nfae.state.widths,act_,nfae.machine)
-   pretrain(10000,batchsize,5e-2,ADAM(0.001))
-   # load_params(nfae)
-   train(nfae,nEpochs,batchsize, x_test, dx_test, alpha_test)
-   adamarg = 0.0001
-end
+#while true 
+#   global adamarg
+#   global loss_train_full, loss_test_full, drop, lift_mat
+#
+#   loss_train_full = []
+#   loss_test_full = []
+#   while minimum(abs.(drop)) < 0.1f0
+#        drop = ones(4,4) .- (0.001f0 .* rand(4,4))
+#        s = svd(drop)
+#        drop = s.U*s.Vt |> nfae.machine
+#        lift_mat = inv(cpu(drop))
+#   end 
+#   ctr = 1 
+#   nfae.par = AE(:Par, nfae.par.in_dim,nfae.par.out_dim,nfae.par.widths,act_,nfae.machine)
+#   nfae.state = AE(:State, nfae.state.in_dim,nfae.state.out_dim,nfae.state.widths,act_,nfae.machine)
+#   pretrain(10000,batchsize,7e-2,ADAM(0.001))
+#   
+#
+#   load_params(nfae)
+#   drop = FileIO.load("/home/kaliam/NFAEdata/fluid-Hopf/drop.jld2","drop") |> nfae.machine
+#   lift_mat = inv(cpu(drop))
+#
+#   train(nfae,nEpochs,batchsize, x_test, dx_test, alpha_test)
+#   adamarg = 0.001
+#   if ctr > nEpochs*(training_size/batchsize) 
+#       break
+#   end
+#end
+#
+#save_params(nfae)
+#FileIO.save("/home/kaliam/NFAEdata/fluid-Hopf/drop.jld2","drop",cpu(drop))
+#FileIO.save("/home/kaliam/NFAEdata/fluid-Hopf/test_ind.jld2","test_ind",cpu(test_ind))
+#

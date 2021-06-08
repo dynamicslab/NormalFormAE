@@ -1,16 +1,30 @@
 
-function dxdt_rhs(dx,u,par,t)
+
+args = Dict()
+args["x_lp"] = -60.0f0
+args["p_lp"] = -60.0f0
+args["p_pf"] = 30.0f0
+args["x_lp"] = -3.0f0
+args["p_lp"] = -3.0f0
+args["p_pf"] = 6.0f0
+args["p_tc"] = args["p_lp"] - args["x_lp"]^2
+
+args["bif_x"] = 0.0f0
+args["bif_p"] = args["p_tc"]
+
+
+function dxdt_solve(args,dx,u,par,t)
     x = u .+ args["bif_x"]
     p = par .+ args["bif_p"]
     p_pf = args["p_pf"]
     p_lp = args["p_lp"]
     x_lp = args["x_lp"]
-    p_tc = p_lp - x_lp^2        
+    p_tc = p_lp - x_lp^2
     dx[1] = 0.01f0*x[1]*(p[1]-p_pf-x[1]^2)*(p[1]-p_lp+(x[1]-x_lp)^2)
     return dx
 end
 
-function dxdt_rhs(u,par,t)
+function dxdt_rhs(args,u,par,t)
     x = u .+ args["bif_x"]
     p = par .+ args["bif_p"]
     p_pf = args["p_pf"]
@@ -77,7 +91,7 @@ function dzdt_solve(dz,z,p,t)
     dz .= (1 ./ (p[2]^2)) .* z .* (p[1] .- z)
 end
 
-function dzdt_rhs(z,p,t,bsize::Int)
+function dzdt_rhs(z,p)
     dz = Zygote.Buffer(z,size(z))
     dz[1,:] =  (1 ./ (p[2,:].^2)) .* (z[1,:] .* (p[1,:] .- z[1,:]))
     return copy(dz)    

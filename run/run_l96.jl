@@ -30,25 +30,33 @@ model_z = NormalForm(:Hopf,z_dim ,par_dim, dzdt_rhs, dzdt_solve)
 state = AE(:State, x_dim,z_dim, [32,16],:tanh,machine)
 par = AE(:Par, par_dim,par_dim,[16,16],:tanh,machine)
 
-tscale_init = [0.9f0] |> machine
+tscale_init = [0.825f0] |> machine
 
 training_size = 1000
 test_size = 20
 
 
-# data_dir = nothing
-data_dir = "/home/kaliam/NFAEdata/"
+data_dir = nothing
+# data_dir = "/home/kaliam/NFAEdata/"
 
 P_reg = [0.0f0, 0.01f0, 0.0f0, 0.001f0, 0.001f0, 0.0f0, 0.1f0]
 
 nfae = NFAE(x_model_name, z_model_name, model_x, model_z, training_size, test_size, state, par, nothing, tscale_init,
-                       P_reg,machine, 10,20,0.1,data_dir)
+                       P_reg,machine, 20,20,0.1,data_dir)
 
 # ---------------------------------- Training-----------------------------------------------------------
-# nfae.data_dir = "/home/kaliam/NFAEdata/"
-load_data(nfae)
-# load_params(nfae)
+nfae.data_dir = "/home/kaliam/NFAEdata/"
+# load_data(nfae)
+load_params(nfae)
 # save_data(nfae) # Make sure to remove this after first run
+
+# Sort test data by order of parameters
+ind_ = sortperm(nfae.test_data["alpha"][1,:])
+nfae.test_data["alpha"] = sort(nfae.test_data["alpha"],dims=2)
+nfae.test_data["x"] = nfae.test_data["x"][:,:,ind_]
+nfae.test_data["dx"] = nfae.test_data["dx"][:,:,ind_]
+
+nfae.tscale[1] = 0.825f0
 
 # Trim initial transients for Lorenz96 specifically
 trim = 300
@@ -68,7 +76,7 @@ x_test = reduce(hcat,[nfae.test_data["x"][:,:,i] for i in 1:nfae.test_size]) |> 
 dx_test = reduce(hcat,[nfae.test_data["dx"][:,:,i] for i in 1:nfae.test_size]) |> nfae.machine
 alpha_test = nfae.test_data["alpha"] |> nfae.machine
 
-nEpochs = 200
+nEpochs = 0
 batchsize = 100
 ctr = 1
 p = gen_plot(nfae.model_z.z_dim, nfae.nPlots)

@@ -11,7 +11,7 @@ function state_enc_loss(data)
 end
 
 function par_enc_loss(data)
-    return Flux.mse(nfae.par.decoder(nfae.par.encoder(data)),data) + Flux.mse(sign.(nfae.par.encoder(data)),sign.(data))
+    return Flux.mse(nfae.par.decoder(nfae.par.encoder(data)),data) + Flux.mse(sign.(nfae.par.encoder(data)),sign.(data)) # -sign only for transcritical
 end
 
 function cond_state(data,norm)
@@ -19,7 +19,7 @@ function cond_state(data,norm)
 end
 
 function cond_par(data)
-    return Flux.mse(sign.(nfae.par.encoder(data)),sign.(data)) > 0.0f0 ? false : true
+    return Flux.mse(sign.(nfae.par.encoder(data)),sign.(data)) > 0.0f0 ? false : true # -sign only for transcritical
 end
     
 function pretrain_enc_state(data, nit,norm, opt)
