@@ -20,7 +20,7 @@
  ```
 which will automatically install the necessary `Julia` packages you need.
 
-- Run an example (tests coming soon) via   
+- Run an example (tests coming soon) via the terminal or REPL Shell mode. Note to run in the REPL Shell mode, you need to use the backspace/delete key to exit out of Pkg mode, and then type a `;`. Find out more about running Julia files [in the Julia docs](https://docs.julialang.org/en/v1/manual/getting-started/).
 ```
 julia -i run/run_nf.jl
 ```
