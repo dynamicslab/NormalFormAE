@@ -8,20 +8,20 @@
  
  ## How to use
  - If you have Linux/Mac, run the following on your terminal to install `Julia`  in one command 
- ```
+ ```terminal
  bash -ci "$(curl -fsSL https://raw.githubusercontent.com/abelsiqueira/jill/master/jill.sh)"
  ```
  from [here](https://github.com/abelsiqueira/jill). 
  - Clone this package and enter the directory. Run `julia` on your terminal.
  - Now run the following:
-```
- ] activate .
- ] instantiate
+```julia
+ julia> ] activate .
+ julia> ] instantiate
  ```
 which will automatically install the necessary `Julia` packages you need.
 
-- Run an example (tests coming soon) via   
-```
+- Run an example (tests coming soon) via the terminal or [REPL Shell mode](https://docs.julialang.org/en/v1/stdlib/REPL/#man-shell-mode). Note to run in the REPL Shell mode, you need to use the backspace/delete key to exit out of Pkg mode, and then type a `;`. Find out more about running Julia files [in the Julia docs](https://docs.julialang.org/en/v1/manual/getting-started/).
+```terminal
 julia -i run/run_nf.jl
 ```
 
